@@ -14,6 +14,6 @@ class modifyDB:
             self.cursor.execute(query, value)
             self.cursor.commit()
             return True
-        except Error:
-            print("Error a la hora de insertar datos", Error)
+        except Error as e:
+            print("Error a la hora de insertar datos", e)
             return False
