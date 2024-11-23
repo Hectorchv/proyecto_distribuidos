@@ -9,6 +9,7 @@ MSGLEN = 1024
 localIP = getLocalIP()
 masterIP = "0.0.0.0"
 
+
 def electionMaster():
     global masterIP
 
