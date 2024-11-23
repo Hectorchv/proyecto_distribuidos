@@ -179,6 +179,7 @@ class comServer:
 
 def handleClient(conn, addr):
     global masterIP
+    modify = modifyDB(connect_mysql())
 
     servidor = comServer(conn,addr)
 
@@ -195,7 +196,12 @@ def handleClient(conn, addr):
         print(f"Nuevo coordinador con IP: {ip}")
         masterIP = ip
         servidor.send("OK", "ok")
-
+    elif tipo == "INS_DOCTOR":
+        if modify.cursor(mensaje.split()):
+            servidor.send("INS_DOCTOR", "ok")
+        else:
+            servidor.send("INS_DOCTOR", "fail")
+            
     register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
     register.close()
