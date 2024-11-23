@@ -1,131 +1,242 @@
 import socket
-import threading
 import time
-from getIP import get_ipv4
+import threading
+import sys
+import re
+from getLocalIP import getLocalIP
 
-def main():
-    # Obtener la dirección IPv4 del host
-    ipv4 = get_ipv4()
+MSGLEN = 1024
+localIP = getLocalIP()
+masterIP = "0.0.0.0"
 
-    # Iniciar servidor en un hilo
-    server_thread = threading.Thread(target=start_server)
-    server_thread.start()
+def electionMaster():
+    global masterIP
 
+    thisNodeIsMaster = True
+    candidates = []
+
+    with open("nodes.txt", "r") as nodes:
+        ipNodes  = [line.strip() for line in nodes.readlines()]
+        ipNodes.remove(localIP)
+
+        for ip in ipNodes:
+            if ip > localIP:
+                candidates.append(ip)
+    
+    print(candidates)
+
+    if candidates:
+        for ip in candidates:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("ELECTION", "New election")
+                ip, _, tipo, mensaje = cliente.receive()
+                print(f"{mensaje} from: {ip}")
+                if mensaje == "ok":
+                    thisNodeIsMaster = False
+            del cliente
+
+    print(thisNodeIsMaster)
+
+    if thisNodeIsMaster:
+        for ip in ipNodes:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("COORDINATOR", "New coordinator")
+                _, timestamp, tipo, mensaje = cliente.receive()
+        
+        masterIP = localIP
+
+class ClientSocket:
+    def __init__(self, sock=None):
+        if sock is None:
+            try:
+                self.sock = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+            except socket.error as err:
+                print("Socket creation failed with error: %s", err)
+        
+        else:
+            self.sock = sock
+    
+    def conect(self, host, port):
+        try:
+            self.addr = host
+            self.port = port
+            self.sock.connect((host, port))
+            return True
+        except ConnectionRefusedError :
+            print(f"Conection refused by ({host}, {port})")
+            self.sock.close()
+            return False
+
+    def send(self, command, msg):
+        totalsent = 0
+        timestamp = time.time()
+        timestamp = time.ctime(timestamp)
+        msg = f"[{timestamp}][{command}][{msg}]"
+        msglen = len(msg)
+        msg = msg.encode()
+        
+        while totalsent < msglen:
+            sent = self.sock.send(msg[totalsent:])
+            if sent == 0:
+                raise RuntimeError("Socket connection broken")
+            totalsent = totalsent + sent
+        self.sock.shutdown(socket.SHUT_WR)
+    
+    def receive(self):
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < MSGLEN:
+            chunk =  self.sock.recv(min(MSGLEN - bytes_recd, 2048))
+            if chunk == b'':
+                break
+            chunks.append(chunk.decode())
+            bytes_recd = bytes_recd + len(chunk)
+
+        mensaje = f"[{self.addr}]" + "".join(chunks)
+        elementos =  re.findall(r'\[(.*?)\]', mensaje)
+        return elementos[0], elementos[1], elementos[2], elementos[3]
+
+class ServerSocket:
+    def __init__(self, sock=None, host='', port=65432):
+        if sock is None:
+            try:
+                self.sock = socket.socket(
+                    socket.AF_INET, socket.SOCK_STREAM)
+            except socket.error as err:
+                print("Socket creation failed with error: %s", err)
+        else:
+            self.sock = sock
+
+        self.sock.bind(('', 65432))
+        self.sock.listen(5)
+    
+    def accept(self):
+        conn, addr = self.sock.accept()
+        print(f"\nConnected by : {addr}")
+        return conn, addr
+
+class comServer:
+    def __init__(self, conn, addr):
+        self.conn = conn
+        self.addr = addr
+
+    def send(self, command, msg):
+        totalsent = 0
+        timestamp = time.time()
+        timestamp = time.ctime(timestamp)
+        msg = f"[{timestamp}][{command}][{msg}]"
+        msglen = len(msg)
+        msg = msg.encode()
+
+        while totalsent < msglen:
+            sent = self.conn.send(msg[totalsent:])
+            if sent == 0:
+                raise RuntimeError("Socket connection broken")
+            totalsent = totalsent + sent
+        self.conn.close()
+    
+    def receive(self):
+        chunks = []
+        bytes_recd = 0
+        while bytes_recd < MSGLEN:
+            chunk =  self.conn.recv(min(MSGLEN - bytes_recd, 2048))
+            if chunk == b'':
+                break
+            chunks.append(chunk.decode())
+            bytes_recd = bytes_recd + len(chunk)
+
+        mensaje = f"[{self.addr[0]}]" + "".join(chunks)
+        elementos =  re.findall(r'\[(.*?)\]', mensaje)
+        return elementos[0], elementos[1], elementos[2], elementos[3]
+
+def handleClient(conn, addr):
+    global masterIP
+
+    servidor = comServer(conn,addr)
+
+    #Maneja el tipo de mensaje
+    ip, timestamp, tipo, mensaje = servidor.receive()
+    if tipo == "MENSAJE":
+        print(mensaje)
+        servidor.send("MENSAJE", "OK")
+    elif tipo == "ELECTION":
+        servidor.send("OK", "ok")
+        print("Nueva eleccion de nodo maestro")
+        electionMaster()
+    elif tipo == "COORDINATOR":
+        print(f"Nuevo coordinador con IP: {ip}")
+        masterIP = ip
+        servidor.send("OK", "ok")
+
+    register = open("register.txt", "a+")
+    register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
+    register.close()
+
+def miserver():
+
+    servidor = ServerSocket()
     while True:
-        print("\nMenú:")
-        print("1) Enviar mensaje")
-        print("2) Mostrar registro de mensaajes")
-        print("3) Salir")
-
-        option = input("Ingrese una opción: ")
-
-        if option == '1':
-            connect_to_remote_server()
-        elif option == '2':
-            print("\nRegistro de mensajes:")
-            print_history()
-        elif option == '3':
-            server_thread
-            return
-        else:
-            print("Ingrese una opción válida")
-
-def start_server():
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
-
-            server.bind(('', 65432))
-            server.listen(5)
-            print(f"Servidor iniciado")
-
-            while True:
-                conn, address = server.accept()
-                connection_time = time.strftime('%Y-%m-%d %H:%M:%S')
-                print(f"\nConección establecida con {address} a las {connection_time}")
-                # Manejar la conexión del cliente en un hilo separado
-                client_thread = threading.Thread(target=handle_client, args=(conn,))
-                client_thread.start()
-    except Exception as e:
-        print("Error al iniciar el servidor:", e)
-
-
-def connect_to_remote_server():
-    try:
-        # Leer las direcciones IP y puertos desde el archivo
-        with open("remote_servers.txt", "r") as file:
-            remote_servers = [line.strip().split() for line in file.readlines()]
-
-        print("\nSeleccione el nodo:")
-        for i, (ip, port) in enumerate(remote_servers, 1):
-            print(f"{i}) {ip}")
-
-        option = int(input("Seleccione una opción: "))
-        if 1 <= option <= len(remote_servers):
-            address, port = remote_servers[option - 1]
-            port = int(port)
-
-            # Crear un socket TCP/IP
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client:
-                # Conectar el socket al servidor remoto
-                client.connect((address, port))
-                print("Conexión establecida con", address, "en el puerto", port)
-                # Enviar mensajes al servidor remoto
-                while True:
-                    message = input("Ingrese mensaje ('exit' para salir): ")
-                    if message.lower() == 'exit':
-                        client.close()
-                        break
-                    message = f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {message}"
-                    client.sendall(message.encode())
-                    # Guardar el mensaje enviado en el archivo de texto
-                    save_message("localhost", message)
-                    # Recibir la respuesta del servidor remoto
-                    response = client.recv(1024)
-                    print("Respuesta del nodo remoto:", response.decode())
-        else:
-            print("Ingrese una opción válida")
-    except Exception as e:
-        print("Connection refused:", e)
-
-
-def handle_client(client):
-    try:
-        while True:
-            # Recibir datos del cliente
-            data = client.recv(1024)
-            if not data:
-                break
-            # Imprimir el mensaje recibido del cliente
-            print("Mensaje recibido del cliente:", data.decode())
-            # Si el mensaje contiene un timestamp, imprímelo
-            if '[' in data.decode() and ']' in data.decode():
-                timestamp = data.decode().split('[')[1].split(']')[0]
-                print("Timestamp del mensaje:", timestamp)
-            # Guardar el mensaje recibido en el archivo de texto
-            save_message(client.getpeername()[0], data.decode())
-            # Si el cliente envía 'exit', salir del bucle y cerrar la conexión
-            if data.decode().strip().lower() == 'exit':
-                break
-            # Enviar de vuelta el mensaje al cliente (eco)
-            client.sendall("Mensaje recibido".encode())
-    except Exception as e:
-        print("Error al recivir mensaje", e)
-    finally:
-        # Cerrar el socket del cliente
-        client.close()
-        print("Conexión con el cliente cerrada.")
-
-def save_message(ip_address, message):
-    with open("messages.txt", "a") as file:
-        file.write(f"IP: {ip_address}, Timestamp: {time.strftime('%Y-%m-%d %H:%M:%S')}, Mensaje: {message}\n")
-
-
-def print_history():
-    try:
-        with open("messages.txt", "r") as file:
-            print(file.read())
-    except FileNotFoundError:
-        print("No se encontró ningún historial de mensajes.")
+        conn, addr = servidor.accept()
+        hilo = threading.Thread(target=handleClient, args=(conn,addr))
+        hilo.start()
+    
 
 if __name__ == "__main__":
-    main()
+
+    #Server thread
+
+    t1 = threading.Thread(target=miserver)
+    t1.start()
+
+    while True:
+
+        ipNodes = []
+        i = 1
+
+        print("Enviar mensaje a:")
+        with open("nodes.txt", "r") as nodes:
+            ipNodes  = [line.strip() for line in nodes.readlines()]
+        
+
+        for ip in ipNodes:
+            print(f"{i}) {ip}")
+            i += 1
+        
+        print(f"{i}) Nuevo coordinador")
+        print(f"{i+1}) Nodo maestro")
+        
+        while True:
+            option = input("Ingrese una opcion: ")
+            try:
+                option = int(option)
+
+                if option > len(ipNodes) + 2:
+                    print("Valor fuera de rango")
+
+                elif option == i:
+                    electionMaster()
+                elif option == i+1:
+                    print(masterIP)
+                else:
+                    cliente = ClientSocket()
+
+                    if cliente.conect(ipNodes[option - 1], 65432):
+                        mensaje = input("Ingrese el mensaje: ")
+                        cliente.send("MENSAJE", mensaje)
+                        ip, timestamp, command, contenido = cliente.receive()
+
+                        print(f"La respuesta de: {ip} con timestamp: {timestamp} de tipo: {command} es: {contenido}")
+                    else:
+                        print("No se logro conectar con el host")
+
+                    break
+            except ValueError:
+                if option != "":
+                    print("Ingrese una opcioin valida")
+
+    t1.join()
+    register.close()
+    #t1.join()

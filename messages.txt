@@ -1,6 +1,0 @@
-IP: 192.168.244.132, Timestamp: 2024-04-08 08:30:33, Mensaje: Hola
-IP: localhost, Timestamp: 2024-04-08 08:30:40, Mensaje: [2024-04-08 08:30:40] Adios
-IP: 192.168.244.132, Timestamp: 2024-04-08 08:32:55, Mensaje: Hola
-IP: 10.192.189.124, Timestamp: 2024-10-17 16:41:53, Mensaje: [2024-10-17 16:41:41] hola
-IP: localhost, Timestamp: 2024-10-17 16:44:35, Mensaje: [2024-10-17 16:44:35] hola
-IP: localhost, Timestamp: 2024-10-17 16:44:37, Mensaje: [2024-10-17 16:44:37] mundo
