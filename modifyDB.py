@@ -7,7 +7,7 @@ class modifyDB:
         else:
             self.cursor = cursor
 
-    def insertDoctor(matricula, nombre, apellido, telefono):
+    def insertDoctor(self, matricula, nombre, apellido, telefono):
         try:
             query = "INSERT INTO DOCTOR (matricula, nombre, apellido, telefono) VALUES (%s, %s, %s, %s)"
             value = (matricula, nombre, apellido, telefono)
