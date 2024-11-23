@@ -3,13 +3,37 @@ import time
 import threading
 import sys
 import re
+from modifyDB import modifyDB
+from connectDB import *
 from getLocalIP import getLocalIP
 
 MSGLEN = 1024
 localIP = getLocalIP()
 masterIP = "0.0.0.0"
 
+def insertarDoctor(matricula, nombre, apellido, telefono):
+    try:
+        modify = modifyDB(connect_mysql())
 
+        with open("nodes.txt", "r") as nodes:
+            ipNodes  = [line.strip() for line in nodes.readlines()]
+            ipNodes.remove(localIP)
+
+        for ip in ipNodes:
+            cliente = ClientSocket(ip, 65432)
+            if cliente.conect():
+                cliente.send("INS_DOCTOR", f"{matricula} {nombre} {apellido} {telefono}")
+                _, _, tipo, mensaje = cliente.receive()
+                if tipo == "INS_DOCTOR " and mensaje == "ok":
+                    print("Actualización exitosa")
+                else:
+                    print("Fallo a la hora de insertar dato")
+            else:
+                print(f"Nodo {ip} no disponible")
+
+    except:
+        print("Error")
+         
 def electionMaster():
     global masterIP
 
@@ -214,13 +238,20 @@ if __name__ == "__main__":
             try:
                 option = int(option)
 
-                if option > len(ipNodes) + 2:
+                if option > len(ipNodes) + 3:
                     print("Valor fuera de rango")
 
                 elif option == i:
                     electionMaster()
                 elif option == i+1:
                     print(masterIP)
+                elif option == i+2:
+                    matricula = input("Ingrese la matrícula: ")
+                    nombre = input("Ingrese el nombre: ")
+                    apellido = input("Ingrese el apellido: ")
+                    telefono = input("Ingrese el telefono: ")
+                    insertarDoctor(matricula, nombre, apellido, telefono)
+
                 else:
                     cliente = ClientSocket()
 
