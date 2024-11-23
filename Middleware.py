@@ -201,7 +201,8 @@ def handleClient(conn, addr):
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
         print(mensaje.split())
-        if modify.insertDoctor(i for i in mensaje.split()):
+        matricula, nombre, apellido, telefono = mensaje.split()
+        if modify.insertDoctor(matricula,mensaje,apellido,telefono):
             servidor.send("INS_DOCTOR", "ok")
         else:
             servidor.send("INS_DOCTOR", "fail")
