@@ -200,6 +200,7 @@ def handleClient(conn, addr):
         masterIP = ip
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
+        print(mensaje.split())
         if modify.insertDoctor(mensaje.split()):
             servidor.send("INS_DOCTOR", "ok")
         else:
