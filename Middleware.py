@@ -20,8 +20,9 @@ def insertarDoctor(matricula, nombre, apellido, telefono):
             ipNodes.remove(localIP)
 
         for ip in ipNodes:
-            cliente = ClientSocket(ip, 65432)
-            if cliente.conect():
+            print(ip)
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
                 cliente.send("INS_DOCTOR", f"{matricula} {nombre} {apellido} {telefono}")
                 _, _, tipo, mensaje = cliente.receive()
                 if tipo == "INS_DOCTOR " and mensaje == "ok":
@@ -31,8 +32,10 @@ def insertarDoctor(matricula, nombre, apellido, telefono):
             else:
                 print(f"Nodo {ip} no disponible")
 
-    except:
-        print("Error")
+        modify.insertDoctor(matricula, nombre, apellido, telefono)
+
+    except Error as E:
+        print("Error ", e)
          
 def electionMaster():
     global masterIP
@@ -197,11 +200,11 @@ def handleClient(conn, addr):
         masterIP = ip
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
-        if modify.cursor(mensaje.split()):
+        if modify.insertDoctor(mensaje.split()):
             servidor.send("INS_DOCTOR", "ok")
         else:
             servidor.send("INS_DOCTOR", "fail")
-            
+
     register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
     register.close()
@@ -238,6 +241,7 @@ if __name__ == "__main__":
         
         print(f"{i}) Nuevo coordinador")
         print(f"{i+1}) Nodo maestro")
+        print(f"{i+2}) Insertar doctor")
         
         while True:
             option = input("Ingrese una opcion: ")
