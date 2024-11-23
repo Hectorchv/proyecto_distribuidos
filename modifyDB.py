@@ -2,7 +2,7 @@ from mysql.connector import Error
 
 class modifyDB:
     def __init__(self, connection=None):
-        if conexion == None:
+        if connection == None:
             print ("Error al cargar el cursor")
         else:
             self.connection
