@@ -5,7 +5,7 @@ class modifyDB:
         if connection == None:
             print ("Error al cargar el cursor")
         else:
-            self.connection
+            self.connection = connection
             self.cursor = connection.cursor()
 
     def insertDoctor(self, matricula, nombre, apellido, telefono):
