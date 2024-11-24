@@ -283,13 +283,13 @@ if __name__ == "__main__":
         print(f"{i}) Nuevo coordinador")
         print(f"{i+1}) Nodo maestro")
         print(f"{i+2}) Insertar doctor")
-        
+        print(f"{i+2}) Insertar paciente")
         while True:
             option = input("Ingrese una opcion: ")
             try:
                 option = int(option)
 
-                if option > len(ipNodes) + 3:
+                if option > len(ipNodes) + 4:
                     print("Valor fuera de rango")
 
                 elif option == i:
@@ -302,7 +302,12 @@ if __name__ == "__main__":
                     apellido = input("Ingrese el apellido: ")
                     telefono = input("Ingrese el telefono: ")
                     insertarDoctor(matricula, nombre, apellido, telefono)
-
+                elif option == i+3:
+                    nSocial = input("Ingrese n social: ")
+                    nombre = input("Ingrese el nombre: ")
+                    apellido = input("Ingrese el apellido: ")
+                    telefono = input("Ingrese el telefono: ")
+                    insertarDoctor(nSocial, nombre, apellido, telefono)
                 else:
                     cliente = ClientSocket()
 
