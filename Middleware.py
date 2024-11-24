@@ -25,7 +25,8 @@ def insertarDoctor(matricula, nombre, apellido, telefono):
             if cliente.conect(ip, 65432):
                 cliente.send("INS_DOCTOR", f"{matricula} {nombre} {apellido} {telefono}")
                 _, _, tipo, mensaje = cliente.receive()
-                if tipo == "INS_DOCTOR " and mensaje == "ok":
+                print()
+                if tipo == "INS_DOCTOR" and mensaje == "ok":
                     print("Actualización exitosa")
                 else:
                     print("Fallo a la hora de insertar dato")
