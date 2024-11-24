@@ -241,7 +241,7 @@ def handleClient(conn, addr):
             servidor.send("INS_DOCTOR", "fail")
     elif tipo == "INS_PACIENTE":
         nSocial, nombre, apellido, telefono = mensaje.split()
-        if modify.insertDoctor(nSocial,mensaje,apellido,telefono):
+        if modify.insertPaciente(nSocial,mensaje,apellido,telefono):
             servidor.send("INS_PACIENTE", "ok")
         else:
             servidor.send("INS_PACIENTE", "fail")
@@ -283,7 +283,7 @@ if __name__ == "__main__":
         print(f"{i}) Nuevo coordinador")
         print(f"{i+1}) Nodo maestro")
         print(f"{i+2}) Insertar doctor")
-        print(f"{i+2}) Insertar paciente")
+        print(f"{i+3}) Insertar paciente")
         while True:
             option = input("Ingrese una opcion: ")
             try:
