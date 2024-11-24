@@ -307,7 +307,7 @@ if __name__ == "__main__":
                     nombre = input("Ingrese el nombre: ")
                     apellido = input("Ingrese el apellido: ")
                     telefono = input("Ingrese el telefono: ")
-                    insertarDoctor(nSocial, nombre, apellido, telefono)
+                    insertarPaciente(nSocial, nombre, apellido, telefono)
                 else:
                     cliente = ClientSocket()
 
