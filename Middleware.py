@@ -11,16 +11,24 @@ MSGLEN = 1024
 localIP = getLocalIP()
 masterIP = "0.0.0.0"
 
+def getNodes():
+    try:
+        with open("nodes.txt", "r") as nodes:
+            ipNodes  = [line.strip() for line in nodes.readlines()]
+            ipNodes.remove(localIP)
+        return ipNodes
+    except Error as e:
+        print("Error a la hora de cargar los nodos: ", e)
+        return None
+
+#Inserta de manera distribuida a la tabla doctor
 def insertarDoctor(matricula, nombre, apellido, telefono):
     try:
         modify = modifyDB(connect_mysql())
 
-        with open("nodes.txt", "r") as nodes:
-            ipNodes  = [line.strip() for line in nodes.readlines()]
-            ipNodes.remove(localIP)
+        ipNodes = getNodes()
 
         for ip in ipNodes:
-            print(ip)
             cliente = ClientSocket()
             if cliente.conect(ip, 65432):
                 cliente.send("INS_DOCTOR", f"{matricula} {nombre} {apellido} {telefono}")
@@ -37,6 +45,32 @@ def insertarDoctor(matricula, nombre, apellido, telefono):
 
     except Error as E:
         print("Error ", e)
+
+#Inserta de manera distribuida a la tabla de Paciente
+def insertarPaciente(nSocial, nombre, apellido, telefono):
+    try:
+        modify = modifyDB(connect_mysql())
+
+        ipNodes = getNodes()
+
+        for ip in ipNodes:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("INS_PACIENTE", f"{nSocial} {nombre} {apellido} {telefono}")
+                _, _, tipo, mensaje = cliente.receive()
+                print()
+                if tipo == "INS_PACIENTE" and mensaje == "ok":
+                    print("Actualización exitosa")
+                else:
+                    print("Fallo a la hora de insertar dato")
+            else:
+                print(f"Nodo {ip} no disponible")
+
+        modify.insertPaciente(nSocial, nombre, apellido, telefono)
+
+    except Error as E:
+        print("Error ", e)
+         
          
 def electionMaster():
     global masterIP
@@ -44,13 +78,11 @@ def electionMaster():
     thisNodeIsMaster = True
     candidates = []
 
-    with open("nodes.txt", "r") as nodes:
-        ipNodes  = [line.strip() for line in nodes.readlines()]
-        ipNodes.remove(localIP)
+    ipNodes = getNodes()
 
-        for ip in ipNodes:
-            if ip > localIP:
-                candidates.append(ip)
+    for ip in ipNodes:
+        if ip > localIP:
+            candidates.append(ip)
     
     print(candidates)
 
@@ -181,6 +213,7 @@ class comServer:
         elementos =  re.findall(r'\[(.*?)\]', mensaje)
         return elementos[0], elementos[1], elementos[2], elementos[3]
 
+#Maneja a cada uno de los clientes y reacciona segun el tipo de mensaje
 def handleClient(conn, addr):
     global masterIP
     modify = modifyDB(connect_mysql())
@@ -201,12 +234,17 @@ def handleClient(conn, addr):
         masterIP = ip
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
-        print(mensaje.split())
         matricula, nombre, apellido, telefono = mensaje.split()
         if modify.insertDoctor(matricula,mensaje,apellido,telefono):
             servidor.send("INS_DOCTOR", "ok")
         else:
             servidor.send("INS_DOCTOR", "fail")
+    elif tipo == "INS_PACIENTE":
+        nSocial, nombre, apellido, telefono = mensaje.split()
+        if modify.insertDoctor(nSocial,mensaje,apellido,telefono):
+            servidor.send("INS_PACIENTE", "ok")
+        else:
+            servidor.send("INS_PACIENTE", "fail")
 
     register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
