@@ -118,7 +118,7 @@ def insertarCama(modelo, marca, sala):
                     print("Fallo a la hora de insertar dato")
             else:
                 print(f"Nodo {ip} no disponible")
-            modify.insertCama(nSocial, modelo, marca, sala)
+            modify.insertCama(modelo, marca, sala)
 
     except Error as E:
         print("Error ", e)
