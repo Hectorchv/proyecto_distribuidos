@@ -70,8 +70,32 @@ def insertarPaciente(nSocial, nombre, apellido, telefono):
 
     except Error as E:
         print("Error ", e)
-         
-         
+
+#Inserta de manera distribuida a la tabla de Cama
+def insertarCama(modelo, marca, sala):
+    try:
+        modify = modifyDB(connect_mysql())
+
+        ipNodes = getNodes()
+
+        for ip in ipNodes:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("INS_CAMA", f"{nSocial} {nombre} {apellido} {telefono}")
+                _, _, tipo, mensaje = cliente.receive()
+                print()
+                if tipo == "INS_CAMA" and mensaje == "ok":
+                    print("Actualización exitosa")
+                else:
+                    print("Fallo a la hora de insertar dato")
+            else:
+                print(f"Nodo {ip} no disponible")
+
+        modify.insertCama(nSocial, modelo, marca, sala)
+
+    except Error as E:
+        print("Error ", e)
+
 def electionMaster():
     global masterIP
 
@@ -255,15 +279,15 @@ def miserver():
     servidor = ServerSocket()
     while True:
         conn, addr = servidor.accept()
-        hilo = threading.Thread(target=handleClient, args=(conn,addr))
+        hilo = threading.Thread(target=handleClient, args=(conn,addr), daemon=True)
         hilo.start()
-    
+
 
 if __name__ == "__main__":
 
     #Server thread
 
-    t1 = threading.Thread(target=miserver)
+    t1 = threading.Thread(target=miserver, daemon=True)
     t1.start()
 
     while True:
@@ -284,12 +308,15 @@ if __name__ == "__main__":
         print(f"{i+1}) Nodo maestro")
         print(f"{i+2}) Insertar doctor")
         print(f"{i+3}) Insertar paciente")
+        print(f"{i+4}) Insertar cama")
+        print(f"{i+5}) Salir")
+        quiero_salir = False
         while True:
             option = input("Ingrese una opcion: ")
             try:
                 option = int(option)
 
-                if option > len(ipNodes) + 4:
+                if option > len(ipNodes) + 5:
                     print("Valor fuera de rango")
 
                 elif option == i:
@@ -308,6 +335,24 @@ if __name__ == "__main__":
                     apellido = input("Ingrese el apellido: ")
                     telefono = input("Ingrese el telefono: ")
                     insertarPaciente(nSocial, nombre, apellido, telefono)
+                elif option == i+4:
+                    modelo = input("Ingrese modelo")
+                    marca = input("Ingrese marca")
+                    sala_valida = False
+                    sala = None
+                    while not sala_valida:
+                        try:
+                            sala = int(input("Ingrese sala: "))
+                            if sala>len(ipNodes) or sala == 0:
+                                raise ValueError()
+                            else:
+                                sala_valida = True
+                        except:
+                            print("Introduce un valor válido")
+                    insertarCama(modelo, marca, sala)
+                elif option == i+5:
+                    quiero_salir = True
+                    break
                 else:
                     cliente = ClientSocket()
 
@@ -323,8 +368,9 @@ if __name__ == "__main__":
                     break
             except ValueError:
                 if option != "":
-                    print("Ingrese una opcioin valida")
-
-    t1.join()
+                    print("Ingrese una opcion valida")
+        if quiero_salir:
+            break
+    #t1.join()
     register.close()
     #t1.join()
