@@ -416,7 +416,7 @@ if __name__ == "__main__":
             try:
                 option = int(option)
 
-                if option > len(ipNodes) + 5:
+                if option > len(ipNodes) + 6:
                     print("Valor fuera de rango")
 
                 elif option == i:
@@ -471,6 +471,3 @@ if __name__ == "__main__":
                     print("Ingrese una opcion valida")
         if quiero_salir:
             break
-    #t1.join()
-    register.close()
-    #t1.join()
