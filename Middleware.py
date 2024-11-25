@@ -81,10 +81,10 @@ def insertarTrabajador(rfc, nombre, apellido, telefono):
         for ip in ipNodes:
             cliente = ClientSocket()
             if cliente.conect(ip, 65432):
-                cliente.send("INS_PACIENTE", f"{nSocial} {nombre} {apellido} {telefono}")
+                cliente.send("INS_TRABAJADOR", f"{rfc} {nombre} {apellido} {telefono}")
                 _, _, tipo, mensaje = cliente.receive()
                 print()
-                if tipo == "INS_PACIENTE" and mensaje == "ok":
+                if tipo == "INS_TRABAJADOR" and mensaje == "ok":
                     print("Actualización exitosa")
                 else:
                     print("Fallo a la hora de insertar dato")
@@ -269,6 +269,12 @@ def handleClient(conn, addr):
             servidor.send("INS_PACIENTE", "ok")
         else:
             servidor.send("INS_PACIENTE", "fail")
+    elif tipo == "INS_TRABAJADOR":
+        rfc, nombre, apellido, telefono = mensaje.split()
+        if modify.insertTrabajador(rfc,mensaje,apellido,telefono):
+            servidor.send("INS_PACIENTE", "ok")
+        else:
+            servidor.send("INS_PACIENTE", "fail")
 
     register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
@@ -282,6 +288,14 @@ def miserver():
         hilo = threading.Thread(target=handleClient, args=(conn,addr))
         hilo.start()
     
+def admin():
+
+    print("1)Insertar doctor")
+    print("2)Insertar paciete")
+    print("3)Insertar trabajador social")
+    print("4)Ver todos los doctores")
+    print("5)Ver todos los pacientes")
+    print("6)Ver todos los trabajadores dociales")
 
 if __name__ == "__main__":
 
