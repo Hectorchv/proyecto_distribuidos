@@ -41,6 +41,7 @@ class modifyDB:
         except Error as e:
             print("Error a la hora de insertar datos en la tabla TRABAJADOR_SOCIAL: ", e)
             return False
+
     def insertCama(self, modelo, marca, sala):
         try:
             query = "INSERT INTO CAMA_ATENCION (modelo, marca, sala) VALUES (%s, %s, %s)"
@@ -51,6 +52,7 @@ class modifyDB:
         except:
             print("Error a la hora de insertar datos en la tabla CAMA_ATENCION: ", e)
             return False
+            
     def insertVisita(self, folio, paciente_id, doctor_id, cama_id):
         try:
             query = "INSERT INTO VISITA_EMERGENCIA (folio, paciente_id, doctor_id, cama_id, fecha) VALUES (%s, %s, %s, %s, %s)"

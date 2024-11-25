@@ -70,8 +70,32 @@ def insertarPaciente(nSocial, nombre, apellido, telefono):
 
     except Error as E:
         print("Error ", e)
-         
-         
+
+#Inserta de manera distribuida a la tabla Trabajador social
+def insertarTrabajador(rfc, nombre, apellido, telefono):
+    try:
+        modify = modifyDB(connect_mysql())
+
+        ipNodes = getNodes()
+
+        for ip in ipNodes:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("INS_PACIENTE", f"{nSocial} {nombre} {apellido} {telefono}")
+                _, _, tipo, mensaje = cliente.receive()
+                print()
+                if tipo == "INS_PACIENTE" and mensaje == "ok":
+                    print("Actualización exitosa")
+                else:
+                    print("Fallo a la hora de insertar dato")
+            else:
+                print(f"Nodo {ip} no disponible")
+            
+            modify.insertTrabajador(rfc, nombre, apellido, telefono)
+
+    except Error as E:
+        print("Error ", e)
+
 def electionMaster():
     global masterIP
 
