@@ -59,7 +59,8 @@ def generarVisita(paciente_id):
     return True
 
 def redistribuirCarga(nodosMuertos):
-    print("Nodossss ", (i for i in nodosMuertos))
+    for i in nodosMuertos:
+        print("Nodossss ", i)
     if nodosMuertos:
         modify = modifyDB(connect_mysql())
         ipNodes = getNodes()
