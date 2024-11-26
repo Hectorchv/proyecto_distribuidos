@@ -28,11 +28,12 @@ def cerrarVisita():
         while True:
             if doctores:
                 print("Doctores con consulta")
-                i = 1
+                i = 0
                 for dato in doctores:
+                    i += 1
                     print(f"{i})Matricula: {dato[0]}\tNombre: {dato[1]} {dato[2]}")
                     folios.append(dato[3])
-                    i += 1
+                    
                 
                 option = input("Ingrese cual visita dar de alta: ")
                 option = int(option)
