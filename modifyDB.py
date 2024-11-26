@@ -233,5 +233,19 @@ class modifyDB:
             print("Error en la consulta", e)
             return None
 
+    def modifyVisita(self, folio, cama_id):
+        try:
+            query = '''
+                UPDATE VISITA_EMERGENCIA
+                SET cama_id = %s
+                WHERE folio = %s;
+                    '''
+            self.cursor.execute(query, (cama_id, folio))
+            self.connection.commit()
+            return True
+        except Error as e:
+            print("Error al ejecutar la actualizacion ")
+            return False
+            
     def close(self):
         self.connection.close_connection()
