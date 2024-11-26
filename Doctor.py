@@ -41,7 +41,7 @@ def cerrarVisita():
                     print("Valor fuera de rango")
                 else:
                     datos = modify.showAllVisita(folios[option-1])[0]
-                    sala = modify.showSala(datos[3])
+                    sala = modify.showSala(datos[3])[0]
                     folio_gen = f"{datos[1]}{datos[2]}{sala[0]}{datos[0]}"
                     for ip in ipNodes:
                         cliente = ClientSocket()
