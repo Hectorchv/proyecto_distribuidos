@@ -117,19 +117,19 @@ def handleClient(conn, addr):
     elif tipo == "INS_DOCTOR":
         print(mensaje)
         matricula, nombre, apellido, telefono = mensaje.split()
-        if modify.insertDoctor(matricula,mensaje,apellido,telefono):
+        if modify.insertDoctor(matricula,nombre,apellido,telefono):
             servidor.send("INS_DOCTOR", "ok")
         else:
             servidor.send("INS_DOCTOR", "fail")
     elif tipo == "INS_PACIENTE":
         nSocial, nombre, apellido, telefono = mensaje.split()
-        if modify.insertPaciente(nSocial,mensaje,apellido,telefono):
+        if modify.insertPaciente(nSocial,nombre,apellido,telefono):
             servidor.send("INS_PACIENTE", "ok")
         else:
             servidor.send("INS_PACIENTE", "fail")
     elif tipo == "INS_TRABAJADOR":
         rfc, nombre, apellido, telefono = mensaje.split()
-        if modify.insertTrabajador(rfc,mensaje,apellido,telefono):
+        if modify.insertTrabajador(rfc,nombre,apellido,telefono):
             servidor.send("INS_TRABAJADOR", "ok")
         else:
             servidor.send("INS_TRABAJADOR", "fail")
