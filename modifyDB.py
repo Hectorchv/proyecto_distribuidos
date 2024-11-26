@@ -188,3 +188,26 @@ class modifyDB:
             return self.cursor.fetchall()
         except Error as e:
             print("Error en la consuta ", e)
+
+    def showBusyDoctor(self):
+        try:
+            query = '''
+                SELECT DISTINCT
+                    DOCTOR.matricula AS doctor_id,
+                    DOCTOR.nombre AS doctor_nombre,
+                    DOCTOR.apellido AS doctor_apellido,
+                    VISITA_EMERGENCIA.folio as visita_folio
+                FROM
+                    DOCTOR
+                INNER JOIN
+                    VISITA_EMERGENCIA
+                ON
+                    VISITA_EMERGENCIA.doctor_id = DOCTOR.matricula
+                WHERE
+                    VISITA_EMERGENCIA.status = 0;
+                    '''
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consulta", e)
+            return None
