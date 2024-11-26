@@ -222,7 +222,7 @@ class modifyDB:
                 INNER JOIN
                     CAMA_ATENCION
                 ON
-                    CAMA_ATENCION.id = VISITA_EMERGENCIA.cama.id
+                    CAMA_ATENCION.id = VISITA_EMERGENCIA.cama_id
                 WHERE
                     VISITA_EMERGENCIA.status = 0 AND CAMA_ATENCION.sala = %s;
                     '''
