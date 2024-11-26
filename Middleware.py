@@ -128,8 +128,8 @@ def heartBit():
             if nodosMuertos:
                 redistribuirCarga(nodosMuertos)
         else:
-            client = ClientSocket()
-            if client.conect(masterIP, 65432):
+            cliente = ClientSocket()
+            if cliente.conect(masterIP, 65432):
                 cliente.send("HEARTBIT", "ok")
                 _, _, tipo, mensaje = cliente.receive()
                 if tipo == "HEARTBIT" and mensaje != "ok":
