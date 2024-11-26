@@ -59,50 +59,51 @@ def generarVisita(paciente_id):
     return True
 
 def redistribuirCarga(nodosMuertos):
-    
-    modify = modifyDB(connect_mysql())
-    ipNodes = getNodes()
 
-    try:
-        with open("nodes.txt", "r") as nodes:
-            salas  = [line.strip() for line in nodes.readlines()]
-    except Error as e:
-        print("Error a la hora de cargar los nodos: ", e)
-    
-    indices = []
-    indices.append(salas.index(i) for i in nodosMuertos)
-    print(indices)
-    disponibles = [1,2,3,4]
-    disponibles.remove(i+1 for i in indices)
+    if nodosMuertos:
+        modify = modifyDB(connect_mysql())
+        ipNodes = getNodes()
 
-    for i in indices:
-        print(f"Sala {i + 1} caída. Distribuyendo citas")
-        citas = modify.showBusyCamas(indice + 1)
-        for folio in citas:
-            num = 0
-            for i in disponibles:
-                prueba = modify.consultAvailableCamas()
-                print(prueba)
-                if len(prueba) > num:
-                    camas = prueba
-                    num = len(prueba)
-                    sala = i
-            
-            cama_id = random.choice(camas)[0]
-            print(f"Distribuyendo cita {folio} a la sala {sala} i a la cama {cama_id}")
-            
-            for ip in ipNodes:
-                cliente = ClientSocket()
-                if cliente.conect(ip, 65432):
-                    cliente.send("CAMBIAR_CAMA", f"{folio} {cama_id}")
-                    _, _, tipo, mensaje = cliente.receive()
-                    print()
-                    if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
-                        print("Actualización exitosa")
-                    else:
-                        print("Fallo a la hora de insertar dato")
+        try:
+            with open("nodes.txt", "r") as nodes:
+                salas  = [line.strip() for line in nodes.readlines()]
+        except Error as e:
+            print("Error a la hora de cargar los nodos: ", e)
+        
+        indices = []
+        indices.append(salas.index(i) for i in nodosMuertos)
+        print(indices)
+        disponibles = [1,2,3,4]
+        disponibles.remove(i+1 for i in indices)
 
-            modify.insertVisita(paciente_id, doctor_id, cama_id)
+        for i in indices:
+            print(f"Sala {i + 1} caída. Distribuyendo citas")
+            citas = modify.showBusyCamas(indice + 1)
+            for folio in citas:
+                num = 0
+                for i in disponibles:
+                    prueba = modify.consultAvailableCamas()
+                    print(prueba)
+                    if len(prueba) > num:
+                        camas = prueba
+                        num = len(prueba)
+                        sala = i
+                
+                cama_id = random.choice(camas)[0]
+                print(f"Distribuyendo cita {folio} a la sala {sala} i a la cama {cama_id}")
+                
+                for ip in ipNodes:
+                    cliente = ClientSocket()
+                    if cliente.conect(ip, 65432):
+                        cliente.send("CAMBIAR_CAMA", f"{folio} {cama_id}")
+                        _, _, tipo, mensaje = cliente.receive()
+                        print()
+                        if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
+                            print("Actualización exitosa")
+                        else:
+                            print("Fallo a la hora de insertar dato")
+
+                modify.insertVisita(paciente_id, doctor_id, cama_id)
 
 
 def heartBit():
