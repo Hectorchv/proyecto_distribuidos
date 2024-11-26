@@ -116,7 +116,7 @@ class modifyDB:
         try:
             query = '''
                 SELECT DISTINCT
-                    VISITA_EMERGENCIA.doctor.id
+                    VISITA_EMERGENCIA.doctor_id
                 FROM
                     VISITA_EMERGENCIA
                 WHERE
