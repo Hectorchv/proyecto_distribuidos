@@ -111,10 +111,8 @@ def redistribuirCarga(nodosMuertos):
             else:
                 print(f"Sin citas en la sala {i}")
 
-
 def heartBit():
     while True:
-        print(masterIP == localIP)
         nodosMuertos = []
         if masterIP == localIP:
             ipNodes = getNodes()
@@ -146,8 +144,6 @@ def electionMaster():
     for ip in ipNodes:
         if ip > localIP:
             candidates.append(ip)
-    
-    print(candidates)
 
     if candidates:
         for ip in candidates:
