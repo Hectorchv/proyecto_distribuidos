@@ -3,6 +3,7 @@ import time
 import threading
 import sys
 import re
+import random
 from modifyDB import modifyDB
 from connectDB import *
 from getLocalIP import getLocalIP
@@ -95,6 +96,65 @@ def insertarTrabajador(rfc, nombre, apellido, telefono):
 
     except Error as E:
         print("Error ", e)
+
+def agendarVisita(nSocial, nombre, apellido, telefono):
+    modify = modifyDB(connect_mysql())
+
+    print("Generar visita de mergencia")
+    
+    try:
+        while True:
+            nSocial = input("Ingrese el número de seguro social: ")
+
+            datos = modify.consultPaciente(nSocial)
+
+            if datos:
+                print(f"Generando consulta para el paciente {datos[0]} {datos[1]}")
+                break
+            else:
+                print("Generando paciente nuevo")
+                nombre = input("Ingrese el nombre del paciente: ")
+                apellido = input("Ingrese el apellido del paciente: ")
+                telefono = input("Ingrese el telefono del paciente: ")
+                if insertarPaciente(nSocial, nombre, apellido, telefono):
+                    break
+        
+        cliente = ClientSocket()
+        if cliente.conect(masterIP, 65432):
+            cliente.send("VISITA", nSocial)
+            _, _, _, _ = cliente.receive()
+    except:
+        print("Error al generar la visita")
+
+def generarVisita(paciente_id):
+    modify = modifyDB(connect_mysql())
+
+    doctores =  modify.consultAvailableDoctor()
+    
+    num = 0
+    sala = 0
+    for i in range(1,5):
+        if len(modify.consultAvailableCamas(i)) > num:
+            sala = i
+    
+    doctor_id = random.choice(doctores)
+    cama_id = random.choice(modify.consultAvailableCamas(sala))
+
+    for ip in ipNodes:
+        cliente = ClientSocket()
+        if cliente.conect(ip, 65432):
+            cliente.send("INS_VISITA", f"{paciente_id} {doctor_id} {cama_id}")
+            _, _, tipo, mensaje = cliente.receive()
+            print()
+            if tipo == "INS_VISITA" and mensaje == "ok":
+                print("Actualización exitosa")
+            else:
+                print("Fallo a la hora de insertar dato")
+        else:
+            print(f"Nodo {ip} no disponible")
+        
+    modify.insertVisita(paciente_id, doctor_id, cama_id)
+
 
 def electionMaster():
     global masterIP

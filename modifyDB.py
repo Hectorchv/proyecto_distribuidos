@@ -53,13 +53,104 @@ class modifyDB:
             print("Error a la hora de insertar datos en la tabla CAMA_ATENCION: ", e)
             return False
             
-    def insertVisita(self, folio, paciente_id, doctor_id, cama_id):
+    def insertVisita(self, paciente_id, doctor_id, cama_id):
         try:
-            query = "INSERT INTO VISITA_EMERGENCIA (folio, paciente_id, doctor_id, cama_id, fecha) VALUES (%s, %s, %s, %s, %s)"
-            value = (folio, paciente_id, doctor_id, cama_id, datetime.now())
+            query = "INSERT INTO VISITA_EMERGENCIA (paciente_id, doctor_id, cama_id, fecha) VALUES (%s, %s, %s, %s)"
+            value = (paciente_id, doctor_id, cama_id, datetime.now())
             self.cursor.execute(query,value)
             self.connection.commit()
             return True
         except:
             print("Error a la hora de insertar datos en la tabla VISITA_EMERGENCIA: ", e)
             return False
+    
+    def dischargePaciente(self, folio):
+        try:
+            query = "UPDATE VISITA_EMERGENCIA SET status = 1 WHERE folio = %s"
+            value = folio
+            self.cursor.execute(query,value)
+            self.connection.commit()
+            return True
+        except Error as e:
+            print("Error a la hora de dar de alta al paciente: " , e)
+            return False
+
+
+    def consultVisit(self):
+        try:
+            query = '''
+                SELECT
+                    VISITA_EMERGENCIA.folio AS visita_id,
+                    DOCTOR.matricula AS doctor_nombre,
+                    PACIENTE.nSocial AS paciente_nombre
+                FROM
+                    VISITA_EMERGENCIA
+                JOIN
+                    DOCTOR ON VISITA_EMERGENCIA.doctor_id = DOCTOR.matricula
+                JOIN
+                    PACIENTE ON VISITA_EMERGENCIA.paciente_id = PACIENTE.nSocial
+                WHERE
+                    VISITA_EMERGENCIA.status = 0;
+                    '''
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+
+        except Error as e:
+            print("Error consulta fallida: ", e)
+            return None
+    
+    def consultAvailableCamas(self, sala):
+        try:
+            query = '''
+                SELECT
+                    CAMA_ATENCION.id AS cama_id
+                FROM
+                    VISITA_EMERGENCIA
+                JOIN
+                    CAMA_ATENCION ON VISITA_EMERGENCIA.cama_id = CAMA_ATENCION.id
+                WHERE
+                    VISITA EMERGENCIA.status = 0
+                    AND CAMA_ATENCION.sala = %s;
+                    '''
+            self.cursor.execute(query, sala)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la culsulta: ",e)
+            return None
+    
+    def consultAvailableDoctor(self):
+        try:
+            query = '''
+                SELECT
+                    DOCTOR.id as doctor_id
+                FROM
+                    VISITA_EMERGENCIA
+                JOIN
+                    DOCTOR ON VISITE_EMERGENCIA.doctor_id = DOCTOR.matricula
+                WHERE
+                    VISITA_EMERGENCIA.status = 0;
+                    '''
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consulta: ", e)
+    
+    def consultPaciente(self, nSocial):
+        try:
+            query = '''
+                SELECT
+                    PACIENTE.nombre as paciente_nombre,
+                    PACIENTE.apellido as paciente_apellido
+                FROM
+                    PACIENTE
+                WHERE
+                    PACIENTE.nSocial = %s;
+                    '''
+            self.cursor.execute(query, nSocial)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consula ", e)
+            return None
+        
+
+
