@@ -228,6 +228,12 @@ def handleClient(conn, addr):
             servidor.send("ALTA", "fail")
     elif tipo == "HEARTBIT":
         servidor.send("HEARTBIT","ok")
+    elif tipo == "CAMBIAR_CAMA":
+        folio, cama_id = mensaje.split()
+        if modify.modifyVisita(folio, cama_id):
+            servidor.send("CAMBIAR_CAMA", "ok")
+        else:
+            servidor.send("CAMBIAR_CAMA", "fail")
     else:
         servidor.send("FAIL", "comando no valido")
     
