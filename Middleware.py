@@ -110,6 +110,7 @@ def redistribuirCarga(nodosMuertos):
 
 def heartBit():
     while True:
+        time.sleep(5)
         nodosMuertos = []
         if masterIP == localIP:
             ipNodes = getNodes()
@@ -126,9 +127,17 @@ def heartBit():
                     nodosMuertos.append(ip)
             if nodosMuertos:
                 redistribuirCarga(nodosMuertos)
-            
-            time.sleep(5)
-        time.sleep(5)
+        else:
+            client = ClientSocket()
+            if client.conect(masterIP, 65432):
+                cliente.send("HEARTBIT", "ok")
+                _, _, tipo, mensaje = cliente.receive()
+                if tipo == "HEARTBIT" and mensaje != "ok":
+                    print(f"Nodo {ip} muerto")
+            else:
+                print("Nodo maestro muerto")
+                electionMaster()         
+        
 
 def electionMaster():
     global masterIP

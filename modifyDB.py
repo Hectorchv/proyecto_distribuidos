@@ -240,5 +240,21 @@ class modifyDB:
             print("Error al ejecutar la actualizacion ")
             return False
 
+    def showAllVisita(self, folio):
+        try:
+            query = "SELECT * FROM VISITA_EMERGENCIA WHERE VISITA_EMERGENCIA.folio = %s;"
+            self.cursor.execute(query, (folio,))
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)
+
+    def showSala(self, id):
+        try:
+            query = "SELECT CAMA_ATENCION.sala FROM CAMA_ATENCION WHERE CAMA_ATENCION.id = %s;"
+            self.cursor.execute(query, (id,))
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)
+
     def close(self):
         self.connection.close()

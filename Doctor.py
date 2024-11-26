@@ -54,6 +54,13 @@ def cerrarVisita():
 
                     if modify.dischargePaciente(folios[option-1]):
                         print("Actualización exitosa")
+                        datos = modify.showAllVisita(folios[option-1])[0]
+                        sala = modify.showSala(datos[3])
+                        folio_gen = f"{datos[1]}{datos[2]}{sala}{datos[0]}"
+                        print("Folio: ", folio_gen)
+                        with open("Folios.txt", "a+") as archivo:
+                            archivo.write(folio_gen)
+                        archivo.close()
                     else:
                         print("Fallo a la hora de insertar dato")
                     break
