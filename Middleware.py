@@ -96,7 +96,7 @@ def redistribuirCarga(nodosMuertos):
                     for ip in ipNodes:
                         cliente = ClientSocket()
                         if cliente.conect(ip, 65432):
-                            cliente.send("CAMBIAR_CAMA", f"{folio} {cama_id}")
+                            cliente.send("CAMBIAR_CAMA", f"{folio[0]} {cama_id}")
                             _, _, tipo, mensaje = cliente.receive()
                             print()
                             if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
