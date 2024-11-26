@@ -59,8 +59,6 @@ def generarVisita(paciente_id):
     return True
 
 def redistribuirCarga(nodosMuertos):
-    for i in nodosMuertos:
-        print("Nodossss ", i)
     if nodosMuertos:
         modify = modifyDB(connect_mysql())
         ipNodes = getNodes()
@@ -76,7 +74,9 @@ def redistribuirCarga(nodosMuertos):
             indices.append(salas.index(i))
         print(indices)
         disponibles = [1,2,3,4]
-        disponibles.remove(i+1 for i in indices)
+        for i in indices:
+            disponibles.remove(1)
+        print(disponibles)
 
         for i in indices:
             print(f"Sala {i + 1} caída. Distribuyendo citas")
