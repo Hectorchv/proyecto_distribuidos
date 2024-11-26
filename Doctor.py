@@ -59,7 +59,7 @@ def cerrarVisita():
                         print("Actualización exitosa")
                         print("Folio: ", folio_gen)
                         with open("Folios.txt", "a+") as archivo:
-                            archivo.write(folio_gen, "\n")
+                            archivo.write(f"{folio_gen}\n")
                         archivo.close()
                     else:
                         print("Fallo a la hora de insertar dato")

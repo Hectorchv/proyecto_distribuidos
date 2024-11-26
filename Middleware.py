@@ -233,7 +233,7 @@ def handleClient(conn, addr):
     elif tipo == "ALTA":
         folio, folio_gen = mensaje.split()
         with open("Folios.txt", "a+") as archivo:
-            archivo.write(folio_gen, "\n")
+            archivo.write(f"{folio_gen}\n")
         archivo.close()
         if modify.dischargePaciente(folio):
             servidor.send("ALTA", "ok")
