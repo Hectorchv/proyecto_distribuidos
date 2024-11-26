@@ -72,11 +72,9 @@ def redistribuirCarga(nodosMuertos):
         indices = []
         for i in nodosMuertos:
             indices.append(salas.index(i)+1)
-        print(indices)
         disponibles = [1,2,3,4]
         for i in indices:
             disponibles.remove(i)
-        print(disponibles)
 
         for i in indices:
             print(f"Sala {i} caída.")
