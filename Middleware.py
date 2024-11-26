@@ -133,13 +133,13 @@ def handleClient(conn, addr):
         else:
             servidor.send("INS_PACIENTE", "fail")
     elif tipo == "INS_CAMA":
-        modelo, marca, sala = mensaje.strip()
+        modelo, marca, sala = mensaje.split()
         if modify.insertCama(modelo, marca, sala):
             servidor.send("INS_CAMA", "ok")
         else:
             servidor.send("INS_CAMA", "fail")
     elif tipo == "INS_VISITA":
-        paciente_id, doctor_id, cama_id = mensaje.strip()
+        paciente_id, doctor_id, cama_id = mensaje.split()
         if modify.insertVisita(paciente_id, doctor_id, cama_id):
             servidor.send("INS_VISITA", "ok")
         else:
