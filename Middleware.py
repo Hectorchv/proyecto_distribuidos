@@ -85,7 +85,6 @@ def redistribuirCarga(nodosMuertos):
                     num = 0
                     for i in disponibles:
                         prueba = modify.consultAvailableCamas(i)
-                        print(prueba)
                         if len(prueba) > num:
                             camas = prueba
                             num = len(prueba)
