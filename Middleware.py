@@ -115,6 +115,7 @@ def handleClient(conn, addr):
         masterIP = ip
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
+        print(mensaje)
         matricula, nombre, apellido, telefono = mensaje.split()
         if modify.insertDoctor(matricula,mensaje,apellido,telefono):
             servidor.send("INS_DOCTOR", "ok")
@@ -197,70 +198,5 @@ if __name__ == "__main__":
         except ValueError as e:
             print("Ingrese una opción valida", e)
 
-    """
-
-    t1 = threading.Thread(target=miserver)
-    t1.start()
-
-    while True:
-
-        ipNodes = []
-        i = 1
-
-        print("Enviar mensaje a:")
-        with open("nodes.txt", "r") as nodes:
-            ipNodes  = [line.strip() for line in nodes.readlines()]
-        
-
-        for ip in ipNodes:
-            print(f"{i}) {ip}")
-            i += 1
-        
-        print(f"{i}) Nuevo coordinador")
-        print(f"{i+1}) Nodo maestro")
-        print(f"{i+2}) Insertar doctor")
-        print(f"{i+3}) Insertar paciente")
-        while True:
-            option = input("Ingrese una opcion: ")
-            try:
-                option = int(option)
-
-                if option > len(ipNodes) + 4:
-                    print("Valor fuera de rango")
-
-                elif option == i:
-                    electionMaster()
-                elif option == i+1:
-                    print(masterIP)
-                elif option == i+2:
-                    matricula = input("Ingrese la matrícula: ")
-                    nombre = input("Ingrese el nombre: ")
-                    apellido = input("Ingrese el apellido: ")
-                    telefono = input("Ingrese el telefono: ")
-                    insertarDoctor(matricula, nombre, apellido, telefono)
-                elif option == i+3:
-                    nSocial = input("Ingrese n social: ")
-                    nombre = input("Ingrese el nombre: ")
-                    apellido = input("Ingrese el apellido: ")
-                    telefono = input("Ingrese el telefono: ")
-                    insertarPaciente(nSocial, nombre, apellido, telefono)
-                else:
-                    cliente = ClientSocket()
-
-                    if cliente.conect(ipNodes[option - 1], 65432):
-                        mensaje = input("Ingrese el mensaje: ")
-                        cliente.send("MENSAJE", mensaje)
-                        ip, timestamp, command, contenido = cliente.receive()
-
-                        print(f"La respuesta de: {ip} con timestamp: {timestamp} de tipo: {command} es: {contenido}")
-                    else:
-                        print("No se logro conectar con el host")
-
-                    break
-            except ValueError:
-                if option != "":
-                    print("Ingrese una opcioin valida")
-
-    """
     t1.join()
     register.close()
