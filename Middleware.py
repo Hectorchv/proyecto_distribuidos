@@ -376,35 +376,83 @@ def miserver():
 
 def admin():
     while True:
-        print("1)Insertar doctor")
-        print("2)Insertar cama")
-        print("3)Insertar paciete")
-        print("4)Insertar trabajador social")
-        print("5)Ver todos los doctores")
-        print("6)Ver todas las camas")
-        print("7)Ver todos los pacientes")
-        print("8)Ver todos los trabajadores sociales")
-        print("9)Regresar")
+        ipNodes = []
+        i = 1
+        try:
+            with open("nodes.txt", "r") as nodes:
+                ipNodes = [line.strip() for line in nodes.readlines()]
+        except:
+            print("No hay archivo nodes.txt")
+            return
+
+        for ip in ipNodes:
+            print(f"{i})Enviar mensaje a {ip}")
+            i += 1
+
+        print(f"{i})Insertar doctor")
+        print(f"{i+1})Insertar cama")
+        print(f"{i+2})Insertar paciente")
+        print(f"{i+3})Insertar trabajador social")
+        print(f"{i+4})Ver todos los doctores")
+        print(f"{i+5})Ver todas las camas")
+        print(f"{i+6})Ver todos los pacientes")
+        print(f"{i+7})Ver todos los trabajadores sociales")
+        print(f"{i+8})Nuevo coordinador")
+        print(f"{i+9})Regresar")
 
         try:
             option = int(input("Ingrese una opción: "))
-            if option == 1:
+            if option > 0 and option < i:
+                cliente = ClientSocket()
+
+                if cliente.conect(ipNodes[option - 1], 65432):
+                    mensaje = input("Ingrese el mensaje: ")
+                    cliente.send("MENSAJE", mensaje)
+                    ip, timestamp, command, contenido = cliente.receive()
+                    print(f"La respuesta de: {ip} con timestamp: {timestamp} de tipo: {command} es: {contenido}")
+                else:
+                    print("No se logro conectar con el host")
+                break
+            elif option == i:
+                matricula = input("Ingrese la matrícula: ")
+                nombre = input("Ingrese el nombre: ")
+                apellido = input("Ingrese el apellido: ")
+                telefono = input("Ingrese el telefono: ")
+                insertarDoctor(matricula, nombre, apellido, telefono)
+            elif option == i+1:
+                modelo = input("Ingrese modelo")
+                marca = input("Ingrese marca")
+                sala_valida = False
+                sala = None
+                while not sala_valida:
+                    try:
+                        sala = int(input("Ingrese sala: "))
+                        if sala>len(ipNodes) or sala == 0:
+                            raise ValueError()
+                        else:
+                            sala_valida = True
+                    except:
+                        print("Introduce un valor válido")
+                insertarCama(modelo, marca, sala)
+            elif option == i+2:
+                nSocial = input("Ingrese n social: ")
+                nombre = input("Ingrese el nombre: ")
+                apellido = input("Ingrese el apellido: ")
+                telefono = input("Ingrese el telefono: ")
+                insertarPaciente(nSocial, nombre, apellido, telefono)
+            elif option == i+3:
                 pass
-            elif option == 2:
+            elif option == i+4:
                 pass
-            elif option == 3:
+            elif option == i+5:
                 pass
-            elif option == 4:
+            elif option == i+6:
                 pass
-            elif option == 5:
+            elif option == i+7:
                 pass
-            elif option == 6:
-                pass
-            elif option == 7:
-                pass
-            elif option == 8:
-                pass
-            elif option == 9:
+            elif option == i+8:
+                electionMaster()
+            elif option == i+9:
                 break
             else:
                 raise ValueError()
@@ -447,7 +495,6 @@ def doctor():
 if __name__ == "__main__":
 
     #Server thread
-
     t1 = threading.Thread(target=miserver, daemon=True)
     t1.start()
 
@@ -471,89 +518,3 @@ if __name__ == "__main__":
                 raise ValueError()
         except:
             print("Ingrese una opción valida")
-
-
-
-
-
-
-
-        ipNodes = []
-        i = 1
-
-        print("Enviar mensaje a:")
-        with open("nodes.txt", "r") as nodes:
-            ipNodes  = [line.strip() for line in nodes.readlines()]
-        
-
-        for ip in ipNodes:
-            print(f"{i}) {ip}")
-            i += 1
-        
-        print(f"{i}) Nuevo coordinador")
-        print(f"{i+1}) Nodo maestro")
-        print(f"{i+2}) Insertar doctor")
-        print(f"{i+3}) Insertar paciente")
-        print(f"{i+4}) Insertar cama")
-        print(f"{i+5}) Salir")
-        quiero_salir = False
-        while True:
-            option = input("Ingrese una opcion: ")
-            try:
-                option = int(option)
-
-                if option > len(ipNodes) + 6:
-                    print("Valor fuera de rango")
-
-                elif option == i:
-                    electionMaster()
-                elif option == i+1:
-                    print(masterIP)
-                elif option == i+2:
-                    matricula = input("Ingrese la matrícula: ")
-                    nombre = input("Ingrese el nombre: ")
-                    apellido = input("Ingrese el apellido: ")
-                    telefono = input("Ingrese el telefono: ")
-                    insertarDoctor(matricula, nombre, apellido, telefono)
-                elif option == i+3:
-                    nSocial = input("Ingrese n social: ")
-                    nombre = input("Ingrese el nombre: ")
-                    apellido = input("Ingrese el apellido: ")
-                    telefono = input("Ingrese el telefono: ")
-                    insertarPaciente(nSocial, nombre, apellido, telefono)
-                elif option == i+4:
-                    modelo = input("Ingrese modelo")
-                    marca = input("Ingrese marca")
-                    sala_valida = False
-                    sala = None
-                    while not sala_valida:
-                        try:
-                            sala = int(input("Ingrese sala: "))
-                            if sala>len(ipNodes) or sala == 0:
-                                raise ValueError()
-                            else:
-                                sala_valida = True
-                        except:
-                            print("Introduce un valor válido")
-                    insertarCama(modelo, marca, sala)
-                elif option == i+5:
-                    quiero_salir = True
-                    break
-                else:
-                    cliente = ClientSocket()
-
-                    if cliente.conect(ipNodes[option - 1], 65432):
-                        mensaje = input("Ingrese el mensaje: ")
-                        cliente.send("MENSAJE", mensaje)
-                        ip, timestamp, command, contenido = cliente.receive()
-
-                        print(f"La respuesta de: {ip} con timestamp: {timestamp} de tipo: {command} es: {contenido}")
-                    else:
-                        print("No se logro conectar con el host")
-
-                    break
-            except ValueError:
-                if option != "":
-                    print("Ingrese una opcion valida")
-        if quiero_salir:
-            break
