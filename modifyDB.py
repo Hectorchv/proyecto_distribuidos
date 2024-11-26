@@ -101,7 +101,7 @@ class modifyDB:
     def consultAvailableCamas(self, sala):
         try:
             query = '''
-                SELECT DISTNCT
+                SELECT DISTINCT
                     CAMA_ATENCION.id AS cama_id
                 FROM
                     CAMA_ATENCION
