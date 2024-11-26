@@ -81,7 +81,7 @@ def redistribuirCarga(nodosMuertos):
         for i in indices:
             print(f"Sala {i} caída. Distribuyendo citas")
             citas = modify.showBusyCamas(i)
-            if citaS:
+            if citas:
                 for folio in citas:
                     num = 0
                     for i in disponibles:
