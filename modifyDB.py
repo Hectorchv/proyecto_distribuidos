@@ -246,6 +246,6 @@ class modifyDB:
         except Error as e:
             print("Error al ejecutar la actualizacion ")
             return False
-            
+
     def close(self):
-        self.connection.close_connection()
+        self.connection.close()
