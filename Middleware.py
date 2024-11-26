@@ -81,31 +81,34 @@ def redistribuirCarga(nodosMuertos):
         for i in indices:
             print(f"Sala {i} caída. Distribuyendo citas")
             citas = modify.showBusyCamas(i)
-            for folio in citas:
-                num = 0
-                for i in disponibles:
-                    prueba = modify.consultAvailableCamas()
-                    print(prueba)
-                    if len(prueba) > num:
-                        camas = prueba
-                        num = len(prueba)
-                        sala = i
-                
-                cama_id = random.choice(camas)[0]
-                print(f"Distribuyendo cita {folio} a la sala {sala} i a la cama {cama_id}")
-                
-                for ip in ipNodes:
-                    cliente = ClientSocket()
-                    if cliente.conect(ip, 65432):
-                        cliente.send("CAMBIAR_CAMA", f"{folio} {cama_id}")
-                        _, _, tipo, mensaje = cliente.receive()
-                        print()
-                        if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
-                            print("Actualización exitosa")
-                        else:
-                            print("Fallo a la hora de insertar dato")
+            if citaS:
+                for folio in citas:
+                    num = 0
+                    for i in disponibles:
+                        prueba = modify.consultAvailableCamas()
+                        print(prueba)
+                        if len(prueba) > num:
+                            camas = prueba
+                            num = len(prueba)
+                            sala = i
+                    
+                    cama_id = random.choice(camas)[0]
+                    print(f"Distribuyendo cita {folio} a la sala {sala} i a la cama {cama_id}")
+                    
+                    for ip in ipNodes:
+                        cliente = ClientSocket()
+                        if cliente.conect(ip, 65432):
+                            cliente.send("CAMBIAR_CAMA", f"{folio} {cama_id}")
+                            _, _, tipo, mensaje = cliente.receive()
+                            print()
+                            if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
+                                print("Actualización exitosa")
+                            else:
+                                print("Fallo a la hora de insertar dato")
 
-                modify.insertVisita(paciente_id, doctor_id, cama_id)
+                    modify.insertVisita(paciente_id, doctor_id, cama_id)
+                else:
+                    print(f"Sin citas en la sala {i}")
 
 
 def heartBit():
