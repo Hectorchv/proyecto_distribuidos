@@ -64,8 +64,6 @@ def heartBit():
     while True:
         print(masterIP == localIP)
         if masterIP == localIP:
-            print("Sending heartbit")
-        
             ipNodes = getNodes()
 
             for ip in ipNodes:
@@ -186,8 +184,11 @@ def handleClient(conn, addr):
         servidor.send("HEARTBIT","ok")
     else:
         servidor.send("FAIL", "comando no valido")
+    
+    modify.close()
+    del modify
 
-    register = open("register.txt", "a+")
+    register = open("register.txt", "w")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
     register.close()
 

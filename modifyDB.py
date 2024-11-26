@@ -211,3 +211,6 @@ class modifyDB:
         except Error as e:
             print("Error en la consulta", e)
             return None
+
+    def close(self):
+        self.connection.close_connection()

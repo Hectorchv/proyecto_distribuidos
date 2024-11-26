@@ -11,7 +11,7 @@ def connect_mysql():
         )
 
         if connection.is_connected():
-            print("Conexión exitosa con la base de datos")
+            #print("Conexión exitosa con la base de datos")
             return connection
         else:
             print("Error al conectar a la base de datos")
