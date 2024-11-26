@@ -55,6 +55,7 @@ def cerrarVisita():
                         print("Actualización exitosa")
                     else:
                         print("Fallo a la hora de insertar dato")
+                    break
             else:
                 print("No hay doctores con consulta en este momento")
                 break

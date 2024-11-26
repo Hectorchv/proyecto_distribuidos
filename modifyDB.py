@@ -68,7 +68,7 @@ class modifyDB:
         try:
             query = "UPDATE VISITA_EMERGENCIA SET status = 1 WHERE folio = %s"
             value = folio
-            self.cursor.execute(query,value)
+            self.cursor.execute(query, (value, ))
             self.connection.commit()
             return True
         except Error as e:
