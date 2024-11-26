@@ -82,6 +82,7 @@ def redistribuirCarga(nodosMuertos):
                 print(f"Distribuyendo citas de la sala {i} caida")
                 for folio in citas:
                     num = 0
+                    camas = []
                     for i in disponibles:
                         prueba = modify.consultAvailableCamas(i)
                         if len(prueba) > num:
@@ -142,7 +143,6 @@ def heartBit():
                 print("Nodo maestro muerto")
                 electionMaster()         
         
-
 def electionMaster():
     global masterIP
 
