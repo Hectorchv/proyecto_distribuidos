@@ -79,9 +79,10 @@ def redistribuirCarga(nodosMuertos):
         print(disponibles)
 
         for i in indices:
-            print(f"Sala {i} caída. Distribuyendo citas")
+            print(f"Sala {i} caída.")
             citas = modify.showBusyCamas(i)
             if citas:
+                print("Distribuyendo citas de la sala")
                 for folio in citas:
                     num = 0
                     for i in disponibles:
@@ -107,8 +108,8 @@ def redistribuirCarga(nodosMuertos):
                                 print("Fallo a la hora de insertar dato")
 
                     modify.insertVisita(paciente_id, doctor_id, cama_id)
-                else:
-                    print(f"Sin citas en la sala {i}")
+            else:
+                print(f"Sin citas en la sala {i}")
 
 
 def heartBit():
