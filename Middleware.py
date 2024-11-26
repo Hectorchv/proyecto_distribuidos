@@ -63,6 +63,7 @@ def redistribuirCarga(ip):
 def heartBit():
 
     if masterIP == localIP:
+        print("Sending heartbit")
     
         ipNodes = getNodes()
 
@@ -202,6 +203,11 @@ if __name__ == "__main__":
 
     t1 = threading.Thread(target=miserver, daemon=True)
     t1.start()
+
+    electionMaster()
+    
+    t2 = threading.Thread(target=heartBit, daemon=True)
+    t2.start
 
     while True:
         print("1)Ingresar como administrador")
