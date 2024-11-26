@@ -103,7 +103,7 @@ class modifyDB:
             query = '''
                 SELECT DISTINCT CA.id AS cama_id
                 FROM CAMA_ATENCION CA
-                WHERE CA.sala = sala_deseada
+                WHERE CA.sala = %s
                 AND CA.id NOT IN (
                     SELECT DISTINCT VE.cama_id
                     FROM VISITA_EMERGENCIA VE
