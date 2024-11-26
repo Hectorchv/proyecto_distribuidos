@@ -62,6 +62,7 @@ def redistribuirCarga(ip):
 
 def heartBit():
     while True:
+        print(masterIP == localIP)
         if masterIP == localIP:
             print("Sending heartbit")
         
