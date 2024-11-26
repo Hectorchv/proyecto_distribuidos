@@ -159,12 +159,10 @@ def electionMaster():
             if cliente.conect(ip, 65432):
                 cliente.send("ELECTION", "New election")
                 ip, _, tipo, mensaje = cliente.receive()
-                print(f"{mensaje} from: {ip}")
+                #print(f"{mensaje} from: {ip}")
                 if mensaje == "ok":
                     thisNodeIsMaster = False
             del cliente
-
-    print(thisNodeIsMaster)
 
     if thisNodeIsMaster:
         for ip in ipNodes:
@@ -190,14 +188,11 @@ def handleClient(conn, addr):
         servidor.send("MENSAJE", "OK")
     elif tipo == "ELECTION":
         servidor.send("OK", "ok")
-        print("Nueva eleccion de nodo maestro")
         electionMaster()
     elif tipo == "COORDINATOR":
-        print(f"Nuevo coordinador con IP: {ip}")
         masterIP = ip
         servidor.send("OK", "ok")
     elif tipo == "INS_DOCTOR":
-        print(mensaje)
         matricula, nombre, apellido, telefono = mensaje.split()
         if modify.insertDoctor(matricula,nombre,apellido,telefono):
             servidor.send("INS_DOCTOR", "ok")
@@ -234,7 +229,10 @@ def handleClient(conn, addr):
         else:
             servidor.send("VISITA", "fail")
     elif tipo == "ALTA":
-        folio = mensaje
+        folio, folio_gen = mensaje
+        with open("Folios.txt", "a+") as archivo:
+            archivo.write(folio_gen, "\n")
+        archivo.close()
         if modify.dischargePaciente(folio):
             servidor.send("ALTA", "ok")
         else:

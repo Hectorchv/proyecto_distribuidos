@@ -40,10 +40,13 @@ def cerrarVisita():
                 if option > i:
                     print("Valor fuera de rango")
                 else:
+                    datos = modify.showAllVisita(folios[option-1])[0]
+                    sala = modify.showSala(datos[3])
+                    folio_gen = f"{datos[1]}{datos[2]}{sala[0]}{datos[0]}"
                     for ip in ipNodes:
                         cliente = ClientSocket()
                         if cliente.conect(ip, 65432):
-                            cliente.send("ALTA", f"{folios[option-1]}")
+                            cliente.send("ALTA", f"{folios[option-1]} {folio_gen}")
                             _, _, tipo, mensaje = cliente.receive()
                             if tipo == "ALTA" and mensaje == "ok":
                                 print("Actualizacion exitosa")
@@ -54,12 +57,9 @@ def cerrarVisita():
 
                     if modify.dischargePaciente(folios[option-1]):
                         print("Actualización exitosa")
-                        datos = modify.showAllVisita(folios[option-1])[0]
-                        sala = modify.showSala(datos[3])
-                        folio_gen = f"{datos[1]}{datos[2]}{sala}{datos[0]}"
                         print("Folio: ", folio_gen)
                         with open("Folios.txt", "a+") as archivo:
-                            archivo.write(folio_gen)
+                            archivo.write(folio_gen, "\n")
                         archivo.close()
                     else:
                         print("Fallo a la hora de insertar dato")
