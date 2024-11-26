@@ -57,6 +57,28 @@ def generarVisita(paciente_id):
     modify.insertVisita(paciente_id, doctor_id, cama_id)
     return True
 
+def redistribuirCarga(ip):
+    return 0
+
+def heartBit():
+
+    if masterIP == localIP:
+    
+        ipNodes = getNodes()
+
+        for ip in ipNodes:
+            cliente = ClientSocket()
+            if cliente.conect(ip, 65432):
+                cliente.send("HEARTBIT", "ok")
+                _, _, tipo, mensaje = cliente.receive()
+                if tipo == "HEARTBIT" and mensaje != "ok":
+                    print(f"Nodo {ip} muerto")
+            else:
+                print(f"Nodo {ip} muerto")
+                redistribuirCarga(ip)
+        
+        time.sleep(5)
+
 def electionMaster():
     global masterIP
 
@@ -157,6 +179,8 @@ def handleClient(conn, addr):
             servidor.send("ALTA", "ok")
         else:
             servidor.send("ALTA", "fail")
+    elif tipo == "HEARTBIT":
+        servidor.send("HEARTBIT","ok")
     else:
         servidor.send("FAIL", "comando no valido")
 
