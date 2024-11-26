@@ -92,7 +92,7 @@ def redistribuirCarga(nodosMuertos):
                             sala = i
                     
                     cama_id = random.choice(camas)[0]
-                    print(f"Distribuyendo cita {folio} a la sala {sala} i a la cama {cama_id}")
+                    print(f"Distribuyendo cita {folio[0]} a la sala {sala} i a la cama {cama_id}")
                     
                     for ip in ipNodes:
                         cliente = ClientSocket()
@@ -105,7 +105,7 @@ def redistribuirCarga(nodosMuertos):
                             else:
                                 print("Fallo a la hora de insertar dato")
 
-                    modify.insertVisita(paciente_id, doctor_id, cama_id)
+                    modify.modifyVisita(folio[0], cama_id)
             else:
                 print(f"Sin citas en la sala {i}")
 
