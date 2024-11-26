@@ -33,7 +33,7 @@ class modifyDB:
     
     def insertTrabajador(self, rfc, nombre, apellido, telefono):
         try:
-            query = "INSERT INTO PACIENTE (rfc, nombre, apellido, telefono) VALUES (%s, %s, %s, %s)"
+            query = "INSERT INTO TRABAJADOR_SOCIAL (rfc, nombre, apellido, telefono) VALUES (%s, %s, %s, %s)"
             value = (rfc, nombre, apellido, telefono)
             self.cursor.execute(query,value)
             self.connection.commit()
@@ -60,7 +60,7 @@ class modifyDB:
             self.cursor.execute(query,value)
             self.connection.commit()
             return True
-        except:
+        except Error as e:
             print("Error a la hora de insertar datos en la tabla VISITA_EMERGENCIA: ", e)
             return False
     
@@ -104,14 +104,17 @@ class modifyDB:
                 SELECT
                     CAMA_ATENCION.id AS cama_id
                 FROM
+                    CAMA_ATENCION
+                LEFT JOIN
                     VISITA_EMERGENCIA
-                JOIN
-                    CAMA_ATENCION ON VISITA_EMERGENCIA.cama_id = CAMA_ATENCION.id
+                ON
+                    VISITA_EMERGENCIA.cama_id = CAMA_ATENCION.id
                 WHERE
-                    VISITA EMERGENCIA.status = 0
-                    AND CAMA_ATENCION.sala = %s;
+                    (VISITA_EMERGENCIA.status != 0 OR
+                    VISITA_EMERGENCIA.status IS NULL) AND
+                    CAMA_ATENCION.sala = %s
                     '''
-            self.cursor.execute(query, sala)
+            self.cursor.execute(query, (sala, ))
             return self.cursor.fetchall()
         except Error as e:
             print("Error en la culsulta: ",e)
@@ -120,19 +123,22 @@ class modifyDB:
     def consultAvailableDoctor(self):
         try:
             query = '''
-                SELECT
-                    DOCTOR.id as doctor_id
+                SELECT DISTINCT
+                    DOCTOR.matricula as doctor_id
                 FROM
+                    DOCTOR
+                LEFT JOIN
                     VISITA_EMERGENCIA
-                JOIN
-                    DOCTOR ON VISITE_EMERGENCIA.doctor_id = DOCTOR.matricula
+                ON 
+                    DOCTOR.matricula = VISITA_EMERGENCIA.doctor_id
                 WHERE
-                    VISITA_EMERGENCIA.status = 0;
+                    VISITA_EMERGENCIA.status != 0 OR VISITA_EMERGENCIA.status IS NULL;
                     '''
             self.cursor.execute(query)
             return self.cursor.fetchall()
         except Error as e:
             print("Error en la consulta: ", e)
+            return None
     
     def consultPaciente(self, nSocial):
         try:
@@ -145,7 +151,7 @@ class modifyDB:
                 WHERE
                     PACIENTE.nSocial = %s;
                     '''
-            self.cursor.execute(query, nSocial)
+            self.cursor.execute(query, (nSocial,))
             return self.cursor.fetchall()
         except Error as e:
             print("Error en la consula ", e)

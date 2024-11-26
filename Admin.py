@@ -38,8 +38,8 @@ def admin():
             else:
                 raise ValueError()
         
-        except:
-            print("Ingrese una opción valida")
+        except Error as e:
+            print("Ingrese una opción valida", e)
 
 def insertarDoctor():
 
@@ -52,6 +52,7 @@ def insertarDoctor():
         modify = modifyDB(connect_mysql())
 
         ipNodes = getNodes()
+        print(ipNodes)
 
         for ip in ipNodes:
             cliente = ClientSocket()
@@ -66,7 +67,10 @@ def insertarDoctor():
             else:
                 print(f"Nodo {ip} no disponible")
 
-        modify.insertDoctor(matricula, nombre, apellido, telefono)
+        if modify.insertDoctor(matricula, nombre, apellido, telefono):
+            print("Actualizacion exitosa")
+        else:
+            print("Fallo al ingresar datos")
 
     except Error as E:
         print("Error ", e)
@@ -80,9 +84,9 @@ def insertarCama():
         modify =  modifyDB(connect_mysql())
         ipNodes = getNodes()
 
-        for ip in ipNodes():
+        for ip in ipNodes:
             cliente = ClientSocket()
-            if cliente.connect(ip, 65432):
+            if cliente.conect(ip, 65432):
                 cliente.send("INS_CAMA", f"{modelo} {marca} {sala}")
                 _, _, tipo, mensaje = cliente.receive()
                 if tipo == "INS_CAMA" and mensaje == "ok":
@@ -149,7 +153,7 @@ def insertarTrabajador():
             else:
                 print(f"Nodo {ip} no disponible")
             
-            modify.insertTrabajador(rfc, nombre, apellido, telefono)
+        modify.insertTrabajador(rfc, nombre, apellido, telefono)
 
     except Error as E:
         print("Error ", e)

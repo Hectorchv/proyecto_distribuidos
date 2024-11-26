@@ -11,13 +11,13 @@ def tSocial():
         try:
             option = int(input("Ingrese una opción: "))
             if option == 1:
-                pass
+                agendarVisita()
             elif option == 2:
                 break
             else:
                 raise ValueError()
-        except:
-            print("Ingrese una opción valida")
+        except Error as e:
+            print("Ingrese una opción valida ", e)
         
 def agendarVisita():
     try:
@@ -28,12 +28,13 @@ def agendarVisita():
 
             datos = modify.consultPaciente(nSocial)
 
-            if datos:
-                print(f"Generando consulta para el paciente {datos[0]} {datos[1]}")
+            if len(datos) > 0:
+                print(f"Generando consulta para el paciente {datos[0][0]} {datos[0][1]}")
                 break
             else:
                 print("Generando paciente nuevo")
                 insertarPaciente(nSocial)
+                break
 
         cliente = ClientSocket()
         if cliente.conect(masterIP, 65432):
@@ -41,5 +42,5 @@ def agendarVisita():
             _, _, tipo, mensaje= cliente.receive()
             if tipo == "VISITA":
                 print(mensaje)
-    except:
-        print("Error al generar la visita")
+    except Error as e:
+        print("Error al generar la visita ", e)

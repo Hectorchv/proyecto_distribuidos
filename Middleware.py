@@ -1,5 +1,8 @@
 import time
 import random
+from Admin import admin
+from Doctor import doctor
+from Trabajador import tSocial
 from comunicacion import *
 from modifyDB import modifyDB
 from connectDB import *
@@ -13,16 +16,31 @@ def generarVisita(paciente_id):
     modify = modifyDB(connect_mysql())
 
     doctores =  modify.consultAvailableDoctor()
-    
+    print(doctores)
+
     num = 0
     sala = 0
+    camas = None
     for i in range(1,5):
-        if len(modify.consultAvailableCamas(i)) > num:
+        prueba = modify.consultAvailableCamas(i)
+        print(prueba)
+        if len(prueba) > num:
+            camas = prueba
             sala = i
     
-    doctor_id = random.choice(doctores)
-    cama_id = random.choice(modify.consultAvailableCamas(sala))
+    if not doctores:
+        print("Sin doctores disponible")
+        return False
+    if not camas:
+        print("Sin camas disponibles")
+        return False
 
+    doctor_id = random.choice(doctores)[0]
+    cama_id = random.choice(camas)[0]
+
+    ipNodes = getNodes()
+    
+    print(f"Generando visita para {paciente_id} doctor {doctor_id} cama {cama_id} en la sala {sala}")
     for ip in ipNodes:
         cliente = ClientSocket()
         if cliente.conect(ip, 65432):
@@ -37,6 +55,7 @@ def generarVisita(paciente_id):
             print(f"Nodo {ip} no disponible")
         
     modify.insertVisita(paciente_id, doctor_id, cama_id)
+    return True
 
 def electionMaster():
     global masterIP
@@ -113,6 +132,14 @@ def handleClient(conn, addr):
             servidor.send("INS_PACIENTE", "ok")
         else:
             servidor.send("INS_PACIENTE", "fail")
+    elif tipo == "VISITA":
+        nSocial =  mensaje
+        if generarVisita(nSocial):
+            servidor.send("VISITA", "ok")
+        else:
+            servidor.send("VISITA", "fail")
+    else:
+        servidor.send("FAIL", "comando no valido")
 
     register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
@@ -151,8 +178,8 @@ if __name__ == "__main__":
                 break
             else:
                 raise ValueError()
-        except:
-            print("Ingrese una opción valida")
+        except Error as e:
+            print("Ingrese una opción valida", e)
 
     """
 

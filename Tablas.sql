@@ -1,6 +1,5 @@
-CREATE USER 'admin'@'*' IDENTIFIED BY 'distribuidos123';
 CREATE DATABASE hospital;
-GRANT ALL PRIVILEGES ON hospital.* TO 'admin'@'*';
+GRANT ALL PRIVILEGES ON hospital.* TO 'admin'@'localhost';
 USE hospital;
 
 CREATE TABLE DOCTOR (

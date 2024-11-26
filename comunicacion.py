@@ -41,6 +41,13 @@ class ClientSocket:
             print(f"Conection refused by ({host}, {port})")
             self.sock.close()
             return False
+        except OSError as e:
+            if e.errno == 113:
+                print(f"Ruta a {self.addr} no encontrada: ", e)
+            else:
+                print(e)
+            return False
+
 
     def send(self, command, msg):
         totalsent = 0
