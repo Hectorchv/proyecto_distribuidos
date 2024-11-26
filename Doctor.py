@@ -15,18 +15,18 @@ def doctor():
                 break
             else:
                 raise ValueError()
-        except:
-            print("Ingrese una opción valida")
+        except Error as e:
+            print("Ingrese una opción valida ", e)
 
 def cerrarVisita():
-    modify = modify(connect_mysql())
+    modify = modifyDB(connect_mysql())
     ipNodes = getNodes()
     doctores = modify.showBusyDoctor()
     folios = []
 
     try:
         while True:
-            if not doctores:
+            if doctores:
                 print("Doctores con consulta")
                 i = 1
                 for dato in doctores:

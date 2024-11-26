@@ -154,9 +154,9 @@ def handleClient(conn, addr):
     elif tipo == "ALTA":
         folio = mensaje
         if modify.dischargePaciente(folio):
-            cliente.send("ALTA", "ok")
+            servidor.send("ALTA", "ok")
         else:
-            cliente.send("ALTA", "fail")
+            servidor.send("ALTA", "fail")
     else:
         servidor.send("FAIL", "comando no valido")
 
