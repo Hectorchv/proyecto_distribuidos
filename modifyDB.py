@@ -101,18 +101,10 @@ class modifyDB:
     def consultAvailableCamas(self, sala):
         try:
             query = '''
-                SELECT DISTINCT
-                    CAMA_ATENCION.id AS cama_id
-                FROM
-                    CAMA_ATENCION
-                LEFT JOIN
-                    VISITA_EMERGENCIA
-                ON
-                    VISITA_EMERGENCIA.cama_id = CAMA_ATENCION.id
-                WHERE
-                    (VISITA_EMERGENCIA.status != 0 OR
-                    VISITA_EMERGENCIA.status IS NULL) AND
-                    CAMA_ATENCION.sala = %s
+                SELECT DISTINCT VE.cama_id
+                FROM VISITA_EMERGENCIA VE
+                JOIN CAMA_ATENCION CA ON VE.cama_id = CA.id
+                WHERE VE.status != 0 AND CA.sala = %s;
                     '''
             self.cursor.execute(query, (sala, ))
             return self.cursor.fetchall()
@@ -124,15 +116,11 @@ class modifyDB:
         try:
             query = '''
                 SELECT DISTINCT
-                    DOCTOR.matricula as doctor_id
+                    VISITA_EMERGENCIA.doctor.id
                 FROM
-                    DOCTOR
-                LEFT JOIN
                     VISITA_EMERGENCIA
-                ON 
-                    DOCTOR.matricula = VISITA_EMERGENCIA.doctor_id
                 WHERE
-                    VISITA_EMERGENCIA.status != 0 OR VISITA_EMERGENCIA.status IS NULL;
+                    VISITA_EMERGENCIA.status != 0;
                     '''
             self.cursor.execute(query)
             return self.cursor.fetchall()
