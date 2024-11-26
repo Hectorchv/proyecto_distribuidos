@@ -206,6 +206,7 @@ def verTrabajadores():
         trabajador = modify.showAllTrabajadores()
 
         for dato in trabajador:
+            print(dato)
             print("rfc: ", dato[0])
             print("Nombre: ", dato[1])
             print("Apellido: ", dato[2])

@@ -129,9 +129,9 @@ def handleClient(conn, addr):
     elif tipo == "INS_TRABAJADOR":
         rfc, nombre, apellido, telefono = mensaje.split()
         if modify.insertTrabajador(rfc,mensaje,apellido,telefono):
-            servidor.send("INS_PACIENTE", "ok")
+            servidor.send("INS_TRABAJADOR", "ok")
         else:
-            servidor.send("INS_PACIENTE", "fail")
+            servidor.send("INS_TRABAJADOR", "fail")
     elif tipo == "INS_CAMA":
         modelo, marca, sala = mensaje.split()
         if modify.insertCama(modelo, marca, sala):

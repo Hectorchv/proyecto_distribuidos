@@ -1,3 +1,4 @@
+DROP DATABASE hospital;
 CREATE DATABASE hospital;
 GRANT ALL PRIVILEGES ON hospital.* TO 'admin'@'localhost';
 USE hospital;
