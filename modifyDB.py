@@ -101,10 +101,14 @@ class modifyDB:
     def consultAvailableCamas(self, sala):
         try:
             query = '''
-                SELECT DISTINCT VE.cama_id
-                FROM VISITA_EMERGENCIA VE
-                JOIN CAMA_ATENCION CA ON VE.cama_id = CA.id
-                WHERE VE.status != 0 AND CA.sala = %s;
+                SELECT DISTINCT CA.id AS cama_id
+                FROM CAMA_ATENCION CA
+                WHERE CA.sala = sala_deseada
+                AND CA.id NOT IN (
+                    SELECT DISTINCT VE.cama_id
+                    FROM VISITA_EMERGENCIA VE
+                    WHERE VE.status = 0
+                );
                     '''
             self.cursor.execute(query, (sala, ))
             return self.cursor.fetchall()
