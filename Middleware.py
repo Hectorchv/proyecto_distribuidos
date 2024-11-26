@@ -375,13 +375,74 @@ def miserver():
         hilo.start()
 
 def admin():
+    while True:
+        print("1)Insertar doctor")
+        print("2)Insertar cama")
+        print("3)Insertar paciete")
+        print("4)Insertar trabajador social")
+        print("5)Ver todos los doctores")
+        print("6)Ver todas las camas")
+        print("7)Ver todos los pacientes")
+        print("8)Ver todos los trabajadores sociales")
+        print("9)Regresar")
 
-    print("1)Insertar doctor")
-    print("2)Insertar paciete")
-    print("3)Insertar trabajador social")
-    print("4)Ver todos los doctores")
-    print("5)Ver todos los pacientes")
-    print("6)Ver todos los trabajadores dociales")
+        try:
+            option = int(input("Ingrese una opción: "))
+            if option == 1:
+                pass
+            elif option == 2:
+                pass
+            elif option == 3:
+                pass
+            elif option == 4:
+                pass
+            elif option == 5:
+                pass
+            elif option == 6:
+                pass
+            elif option == 7:
+                pass
+            elif option == 8:
+                pass
+            elif option == 9:
+                break
+            else:
+                raise ValueError()
+        except:
+            print("Ingrese una opción valida")
+
+def tSocial():
+    while True:
+        print("1)Registrar visita")
+        print("2)Regresar")
+
+        try:
+            option = int(input("Ingrese una opción: "))
+            if option == 1:
+                pass
+            elif option == 2:
+                break
+            else:
+                raise ValueError()
+        except:
+            print("Ingrese una opción valida")
+
+def doctor():
+    while True:
+        print("1)Cerrar visita")
+        print("2)Regresar")
+
+        try:
+            option = int(input("Ingrese una opción: "))
+            if option == 1:
+                pass
+            elif option == 2:
+                break
+            else:
+                raise ValueError()
+        except:
+            print("Ingrese una opción valida")
+
 
 if __name__ == "__main__":
 
@@ -391,6 +452,31 @@ if __name__ == "__main__":
     t1.start()
 
     while True:
+        print("1)Ingresar como administrador")
+        print("2)Ingresar como trabajador social")
+        print("3)Ingresar como doctor")
+        print("4)Salir")
+
+        try:
+            option = int(input("Ingrese una opción: "))
+            if option == 1:
+                admin()
+            elif option == 2:
+                tSocial()
+            elif option == 3:
+                doctor()
+            elif option == 4:
+                break
+            else:
+                raise ValueError()
+        except:
+            print("Ingrese una opción valida")
+
+
+
+
+
+
 
         ipNodes = []
         i = 1
