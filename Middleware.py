@@ -71,6 +71,7 @@ def redistribuirCarga(nodosMuertos):
             print("Error a la hora de cargar los nodos: ", e)
         
         indices = []
+        print(salas.index(i) for i in nodosMuerto)
         indices.append(salas.index(i) for i in nodosMuertos)
         print(indices)
         disponibles = [1,2,3,4]
