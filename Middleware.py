@@ -108,7 +108,8 @@ def redistribuirCarga(nodosMuertos):
                     else:
                         print("No hay camas disponibles")
             else:
-                print(f"Sin citas en la sala {i}")
+                pass
+                #print(f"Sin citas en la sala {i}")
 
 def heartBit():
     while True:
@@ -123,9 +124,10 @@ def heartBit():
                     cliente.send("HEARTBIT", "ok")
                     _, _, tipo, mensaje = cliente.receive()
                     if tipo == "HEARTBIT" and mensaje != "ok":
-                        print(f"Nodo {ip} muerto")
+                        #print(f"Nodo {ip} muerto")
+                        pass
                 else:
-                    print(f"Nodo {ip} muerto")
+                    #print(f"Nodo {ip} muerto")
                     nodosMuertos.append(ip)
             if nodosMuertos:
                 redistribuirCarga(nodosMuertos)
@@ -229,7 +231,7 @@ def handleClient(conn, addr):
         else:
             servidor.send("VISITA", "fail")
     elif tipo == "ALTA":
-        folio, folio_gen = mensaje
+        folio, folio_gen = mensaje.split()
         with open("Folios.txt", "a+") as archivo:
             archivo.write(folio_gen, "\n")
         archivo.close()
