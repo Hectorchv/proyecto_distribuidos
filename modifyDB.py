@@ -211,6 +211,27 @@ class modifyDB:
         except Error as e:
             print("Error en la consulta", e)
             return None
+    
+    def showBusyCamas(self, sala):
+        try:
+            query = '''
+                SELECT DISTINCT
+                    VISITA_EMERGENCIA.folio
+                FROM
+                    VISITA_EMERGENCIA
+                INNER JOIN
+                    CAMA_ATENCION
+                ON
+                    CAMA_ATENCION.id = VISITA_EMERGENCIA.cama.id
+                WHERE
+                    VISITA_EMERGENCIA.status = 0 AND CAMA_ATENCION.sala = %s;
+                    '''
+            self.cursor.execute(query, (sala,))
+            return self.cursor.fetchall()
+
+        except Error as e:
+            print("Error en la consulta", e)
+            return None
 
     def close(self):
         self.connection.close_connection()

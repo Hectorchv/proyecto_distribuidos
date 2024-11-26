@@ -58,7 +58,18 @@ def generarVisita(paciente_id):
     return True
 
 def redistribuirCarga(ip):
-    return 0
+    
+    modify = modifyDB(connect_mysql())
+
+    try:
+        with open("nodes.txt", "r") as nodes:
+            salas  = [line.strip() for line in nodes.readlines()]
+    except Error as e:
+        print("Error a la hora de cargar los nodos: ", e)
+    
+    
+    
+    
 
 def heartBit():
     while True:
@@ -188,7 +199,7 @@ def handleClient(conn, addr):
     modify.close()
     del modify
 
-    register = open("register.txt", "w")
+    register = open("register.txt", "a+")
     register.write(f"[{ip}][{timestamp}][{tipo}][{mensaje}]\n")
     register.close()
 
