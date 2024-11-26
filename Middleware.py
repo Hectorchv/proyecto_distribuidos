@@ -132,6 +132,18 @@ def handleClient(conn, addr):
             servidor.send("INS_PACIENTE", "ok")
         else:
             servidor.send("INS_PACIENTE", "fail")
+    elif tipo == "INS_CAMA":
+        modelo, marca, sala = mensaje.strip()
+        if modify.insertCama(modelo, marca, sala):
+            servidor.send("INS_CAMA", "ok")
+        else:
+            servidor.send("INS_CAMA", "fail")
+    elif tipo == "INS_VISITA":
+        paciente_id, doctor_id, cama_id = mensaje.strip()
+        if modify.insertVisita(paciente_id, doctor_id, cama_id):
+            servidor.send("INS_VISITA", "ok")
+        else:
+            servidor.send("INS_VISITA", "fail")
     elif tipo == "VISITA":
         nSocial =  mensaje
         if generarVisita(nSocial):
@@ -164,10 +176,12 @@ if __name__ == "__main__":
         print("1)Ingresar como administrador")
         print("2)Ingresar como trabajador social")
         print("3)Ingresar como doctor")
-        print("4)Salir")
+        print("4)Election")
+        print("5)Salir")
 
+        option = input("Ingrese una opción: ")
         try:
-            option = int(input("Ingrese una opción: "))
+            option = int(option)
             if option == 1:
                 admin()
             elif option == 2:
@@ -175,10 +189,12 @@ if __name__ == "__main__":
             elif option == 3:
                 doctor()
             elif option == 4:
+                electionMaster()
+            elif option == 5:
                 break
             else:
-                raise ValueError()
-        except Error as e:
+                print("Ingrese un valor dentro del rango")
+        except ValueError as e:
             print("Ingrese una opción valida", e)
 
     """
