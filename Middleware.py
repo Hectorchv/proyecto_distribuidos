@@ -77,10 +77,9 @@ def redistribuirCarga(nodosMuertos):
             disponibles.remove(i)
 
         for i in indices:
-            print(f"Sala {i} caída.")
             citas = modify.showBusyCamas(i)
             if citas:
-                print("Distribuyendo citas de la sala")
+                print(f"Distribuyendo citas de la sala {i} caida")
                 for folio in citas:
                     num = 0
                     for i in disponibles:
@@ -90,21 +89,24 @@ def redistribuirCarga(nodosMuertos):
                             num = len(prueba)
                             sala = i
                     
-                    cama_id = random.choice(camas)[0]
-                    print(f"Distribuyendo cita {folio[0]} a la sala {sala} i a la cama {cama_id}")
-                    
-                    for ip in ipNodes:
-                        cliente = ClientSocket()
-                        if cliente.conect(ip, 65432):
-                            cliente.send("CAMBIAR_CAMA", f"{folio[0]} {cama_id}")
-                            _, _, tipo, mensaje = cliente.receive()
-                            print()
-                            if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
-                                print("Actualización exitosa")
-                            else:
-                                print("Fallo a la hora de insertar dato")
+                    if camas:
+                        cama_id = random.choice(camas)[0]
+                        print(f"Distribuyendo cita {folio[0]} a la sala {sala} i a la cama {cama_id}")
+                        
+                        for ip in ipNodes:
+                            cliente = ClientSocket()
+                            if cliente.conect(ip, 65432):
+                                cliente.send("CAMBIAR_CAMA", f"{folio[0]} {cama_id}")
+                                _, _, tipo, mensaje = cliente.receive()
+                                print()
+                                if tipo == "CAMBIAR_CAMA" and mensaje == "ok":
+                                    print("Actualización exitosa")
+                                else:
+                                    print("Fallo a la hora de insertar dato")
 
-                    modify.modifyVisita(folio[0], cama_id)
+                        modify.modifyVisita(folio[0], cama_id)
+                    else:
+                        print("No hay camas disponibles")
             else:
                 print(f"Sin citas en la sala {i}")
 

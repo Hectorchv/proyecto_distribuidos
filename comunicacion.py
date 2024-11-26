@@ -38,12 +38,13 @@ class ClientSocket:
             self.sock.connect((host, port))
             return True
         except ConnectionRefusedError :
-            print(f"Conection refused by ({host}, {port})")
+            #print(f"Conection refused by ({host}, {port})")
             self.sock.close()
             return False
         except OSError as e:
             if e.errno == 113:
-                print(f"Ruta a {self.addr} no encontrada: ", e)
+                #print(f"Ruta a {self.addr} no encontrada: ", e)
+                pass
             else:
                 print(e)
             return False
@@ -94,7 +95,7 @@ class ServerSocket:
     
     def accept(self):
         conn, addr = self.sock.accept()
-        print(f"\nConnected by : {addr}")
+        #print(f"\nConnected by : {addr}")
         return conn, addr
 
 class comServer:
