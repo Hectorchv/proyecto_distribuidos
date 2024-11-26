@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
     electionMaster()
     
-    t2 = threading.Thread(target=heartBit, daemon=True)
+    t2 = threading.Thread(target=heartBit)
     t2.start
 
     while True:
