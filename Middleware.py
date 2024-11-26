@@ -84,7 +84,7 @@ def redistribuirCarga(nodosMuertos):
                 for folio in citas:
                     num = 0
                     for i in disponibles:
-                        prueba = modify.consultAvailableCamas()
+                        prueba = modify.consultAvailableCamas(i)
                         print(prueba)
                         if len(prueba) > num:
                             camas = prueba
