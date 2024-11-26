@@ -75,7 +75,6 @@ class modifyDB:
             print("Error a la hora de dar de alta al paciente: " , e)
             return False
 
-
     def consultVisit(self):
         try:
             query = '''
@@ -152,5 +151,34 @@ class modifyDB:
             print("Error en la consula ", e)
             return None
         
-
-
+    def showAllDoctor(self):
+        try:
+            query = "SELECT * FROM DOCTOR;"
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)
+    
+    def showAllCamas(self):
+        try:
+            query = "SELECT * FROM CAMA_ATENCION;"
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)
+    
+    def showAllPaciente(self):
+        try:
+            query = "SELECT * FROM PACIENTE;"
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)
+    
+    def showAllTrabajadores(self):
+        try:
+            query = "SELECT * FROM TRABAJADOR_SOCIAL;"
+            self.cursor.execute(query)
+            return self.cursor.fetchall()
+        except Error as e:
+            print("Error en la consuta ", e)

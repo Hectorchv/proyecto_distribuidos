@@ -1,9 +1,6 @@
-import socket
 import time
-import threading
-import sys
-import re
 import random
+from comunicacion import *
 from modifyDB import modifyDB
 from connectDB import *
 from getLocalIP import getLocalIP
@@ -11,120 +8,6 @@ from getLocalIP import getLocalIP
 MSGLEN = 1024
 localIP = getLocalIP()
 masterIP = "0.0.0.0"
-
-def getNodes():
-    try:
-        with open("nodes.txt", "r") as nodes:
-            ipNodes  = [line.strip() for line in nodes.readlines()]
-            ipNodes.remove(localIP)
-        return ipNodes
-    except Error as e:
-        print("Error a la hora de cargar los nodos: ", e)
-        return None
-
-#Inserta de manera distribuida a la tabla doctor
-def insertarDoctor(matricula, nombre, apellido, telefono):
-    try:
-        modify = modifyDB(connect_mysql())
-
-        ipNodes = getNodes()
-
-        for ip in ipNodes:
-            cliente = ClientSocket()
-            if cliente.conect(ip, 65432):
-                cliente.send("INS_DOCTOR", f"{matricula} {nombre} {apellido} {telefono}")
-                _, _, tipo, mensaje = cliente.receive()
-                print()
-                if tipo == "INS_DOCTOR" and mensaje == "ok":
-                    print("Actualización exitosa")
-                else:
-                    print("Fallo a la hora de insertar dato")
-            else:
-                print(f"Nodo {ip} no disponible")
-
-        modify.insertDoctor(matricula, nombre, apellido, telefono)
-
-    except Error as E:
-        print("Error ", e)
-
-#Inserta de manera distribuida a la tabla de Paciente
-def insertarPaciente(nSocial, nombre, apellido, telefono):
-    try:
-        modify = modifyDB(connect_mysql())
-
-        ipNodes = getNodes()
-
-        for ip in ipNodes:
-            cliente = ClientSocket()
-            if cliente.conect(ip, 65432):
-                cliente.send("INS_PACIENTE", f"{nSocial} {nombre} {apellido} {telefono}")
-                _, _, tipo, mensaje = cliente.receive()
-                print()
-                if tipo == "INS_PACIENTE" and mensaje == "ok":
-                    print("Actualización exitosa")
-                else:
-                    print("Fallo a la hora de insertar dato")
-            else:
-                print(f"Nodo {ip} no disponible")
-
-        modify.insertPaciente(nSocial, nombre, apellido, telefono)
-
-    except Error as E:
-        print("Error ", e)
-
-#Inserta de manera distribuida a la tabla Trabajador social
-def insertarTrabajador(rfc, nombre, apellido, telefono):
-    try:
-        modify = modifyDB(connect_mysql())
-
-        ipNodes = getNodes()
-
-        for ip in ipNodes:
-            cliente = ClientSocket()
-            if cliente.conect(ip, 65432):
-                cliente.send("INS_TRABAJADOR", f"{rfc} {nombre} {apellido} {telefono}")
-                _, _, tipo, mensaje = cliente.receive()
-                print()
-                if tipo == "INS_TRABAJADOR" and mensaje == "ok":
-                    print("Actualización exitosa")
-                else:
-                    print("Fallo a la hora de insertar dato")
-            else:
-                print(f"Nodo {ip} no disponible")
-            
-            modify.insertTrabajador(rfc, nombre, apellido, telefono)
-
-    except Error as E:
-        print("Error ", e)
-
-def agendarVisita(nSocial, nombre, apellido, telefono):
-    modify = modifyDB(connect_mysql())
-
-    print("Generar visita de mergencia")
-    
-    try:
-        while True:
-            nSocial = input("Ingrese el número de seguro social: ")
-
-            datos = modify.consultPaciente(nSocial)
-
-            if datos:
-                print(f"Generando consulta para el paciente {datos[0]} {datos[1]}")
-                break
-            else:
-                print("Generando paciente nuevo")
-                nombre = input("Ingrese el nombre del paciente: ")
-                apellido = input("Ingrese el apellido del paciente: ")
-                telefono = input("Ingrese el telefono del paciente: ")
-                if insertarPaciente(nSocial, nombre, apellido, telefono):
-                    break
-        
-        cliente = ClientSocket()
-        if cliente.conect(masterIP, 65432):
-            cliente.send("VISITA", nSocial)
-            _, _, _, _ = cliente.receive()
-    except:
-        print("Error al generar la visita")
 
 def generarVisita(paciente_id):
     modify = modifyDB(connect_mysql())
@@ -154,7 +37,6 @@ def generarVisita(paciente_id):
             print(f"Nodo {ip} no disponible")
         
     modify.insertVisita(paciente_id, doctor_id, cama_id)
-
 
 def electionMaster():
     global masterIP
@@ -192,110 +74,6 @@ def electionMaster():
         
         masterIP = localIP
 
-class ClientSocket:
-    def __init__(self, sock=None):
-        if sock is None:
-            try:
-                self.sock = socket.socket(
-                    socket.AF_INET, socket.SOCK_STREAM)
-            except socket.error as err:
-                print("Socket creation failed with error: %s", err)
-        
-        else:
-            self.sock = sock
-    
-    def conect(self, host, port):
-        try:
-            self.addr = host
-            self.port = port
-            self.sock.connect((host, port))
-            return True
-        except ConnectionRefusedError :
-            print(f"Conection refused by ({host}, {port})")
-            self.sock.close()
-            return False
-
-    def send(self, command, msg):
-        totalsent = 0
-        timestamp = time.time()
-        timestamp = time.ctime(timestamp)
-        msg = f"[{timestamp}][{command}][{msg}]"
-        msglen = len(msg)
-        msg = msg.encode()
-        
-        while totalsent < msglen:
-            sent = self.sock.send(msg[totalsent:])
-            if sent == 0:
-                raise RuntimeError("Socket connection broken")
-            totalsent = totalsent + sent
-        self.sock.shutdown(socket.SHUT_WR)
-    
-    def receive(self):
-        chunks = []
-        bytes_recd = 0
-        while bytes_recd < MSGLEN:
-            chunk =  self.sock.recv(min(MSGLEN - bytes_recd, 2048))
-            if chunk == b'':
-                break
-            chunks.append(chunk.decode())
-            bytes_recd = bytes_recd + len(chunk)
-
-        mensaje = f"[{self.addr}]" + "".join(chunks)
-        elementos =  re.findall(r'\[(.*?)\]', mensaje)
-        return elementos[0], elementos[1], elementos[2], elementos[3]
-
-class ServerSocket:
-    def __init__(self, sock=None, host='', port=65432):
-        if sock is None:
-            try:
-                self.sock = socket.socket(
-                    socket.AF_INET, socket.SOCK_STREAM)
-            except socket.error as err:
-                print("Socket creation failed with error: %s", err)
-        else:
-            self.sock = sock
-
-        self.sock.bind(('', 65432))
-        self.sock.listen(5)
-    
-    def accept(self):
-        conn, addr = self.sock.accept()
-        print(f"\nConnected by : {addr}")
-        return conn, addr
-
-class comServer:
-    def __init__(self, conn, addr):
-        self.conn = conn
-        self.addr = addr
-
-    def send(self, command, msg):
-        totalsent = 0
-        timestamp = time.time()
-        timestamp = time.ctime(timestamp)
-        msg = f"[{timestamp}][{command}][{msg}]"
-        msglen = len(msg)
-        msg = msg.encode()
-
-        while totalsent < msglen:
-            sent = self.conn.send(msg[totalsent:])
-            if sent == 0:
-                raise RuntimeError("Socket connection broken")
-            totalsent = totalsent + sent
-        self.conn.close()
-    
-    def receive(self):
-        chunks = []
-        bytes_recd = 0
-        while bytes_recd < MSGLEN:
-            chunk =  self.conn.recv(min(MSGLEN - bytes_recd, 2048))
-            if chunk == b'':
-                break
-            chunks.append(chunk.decode())
-            bytes_recd = bytes_recd + len(chunk)
-
-        mensaje = f"[{self.addr[0]}]" + "".join(chunks)
-        elementos =  re.findall(r'\[(.*?)\]', mensaje)
-        return elementos[0], elementos[1], elementos[2], elementos[3]
 
 #Maneja a cada uno de los clientes y reacciona segun el tipo de mensaje
 def handleClient(conn, addr):
@@ -347,19 +125,36 @@ def miserver():
         conn, addr = servidor.accept()
         hilo = threading.Thread(target=handleClient, args=(conn,addr))
         hilo.start()
-    
-def admin():
-
-    print("1)Insertar doctor")
-    print("2)Insertar paciete")
-    print("3)Insertar trabajador social")
-    print("4)Ver todos los doctores")
-    print("5)Ver todos los pacientes")
-    print("6)Ver todos los trabajadores dociales")
 
 if __name__ == "__main__":
 
     #Server thread
+
+    t1 = threading.Thread(target=miserver, daemon=True)
+    t1.start()
+
+    while True:
+        print("1)Ingresar como administrador")
+        print("2)Ingresar como trabajador social")
+        print("3)Ingresar como doctor")
+        print("4)Salir")
+
+        try:
+            option = int(input("Ingrese una opción: "))
+            if option == 1:
+                admin()
+            elif option == 2:
+                tSocial()
+            elif option == 3:
+                doctor()
+            elif option == 4:
+                break
+            else:
+                raise ValueError()
+        except:
+            print("Ingrese una opción valida")
+
+    """
 
     t1 = threading.Thread(target=miserver)
     t1.start()
@@ -423,6 +218,6 @@ if __name__ == "__main__":
                 if option != "":
                     print("Ingrese una opcioin valida")
 
+    """
     t1.join()
     register.close()
-    #t1.join()
