@@ -61,23 +61,24 @@ def redistribuirCarga(ip):
     return 0
 
 def heartBit():
-
-    if masterIP == localIP:
-        print("Sending heartbit")
-    
-        ipNodes = getNodes()
-
-        for ip in ipNodes:
-            cliente = ClientSocket()
-            if cliente.conect(ip, 65432):
-                cliente.send("HEARTBIT", "ok")
-                _, _, tipo, mensaje = cliente.receive()
-                if tipo == "HEARTBIT" and mensaje != "ok":
-                    print(f"Nodo {ip} muerto")
-            else:
-                print(f"Nodo {ip} muerto")
-                redistribuirCarga(ip)
+    while True:
+        if masterIP == localIP:
+            print("Sending heartbit")
         
+            ipNodes = getNodes()
+
+            for ip in ipNodes:
+                cliente = ClientSocket()
+                if cliente.conect(ip, 65432):
+                    cliente.send("HEARTBIT", "ok")
+                    _, _, tipo, mensaje = cliente.receive()
+                    if tipo == "HEARTBIT" and mensaje != "ok":
+                        print(f"Nodo {ip} muerto")
+                else:
+                    print(f"Nodo {ip} muerto")
+                    redistribuirCarga(ip)
+            
+            time.sleep(5)
         time.sleep(5)
 
 def electionMaster():
