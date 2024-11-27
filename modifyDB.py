@@ -119,9 +119,9 @@ class modifyDB:
     def consultAvailableDoctor(self):
         try:
             query = '''
-                SELECT DISTINCT doctor_id
-                FROM VISITA_EMERGENCIA
-                WHERE doctor_id NOT IN (
+                SELECT DISTINCT matricula
+                FROM DOCTOR
+                WHERE matricula NOT IN (
                     SELECT DISTINCT doctor_id
                     FROM VISITA_EMERGENCIA
                     WHERE status = 0
